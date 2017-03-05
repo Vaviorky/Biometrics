@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Biometrics.Classes;
 using Biometrics.Views;
 using Microsoft.Win32;
+using Image = System.Windows.Controls.Image;
 
 namespace Biometrics
 {
@@ -16,9 +19,11 @@ namespace Biometrics
     /// </summary>
     public partial class MainWindow : Window
     {
-        private BitmapImage origin;
-        private Point pixelPoint;
+        public static BitmapImage origin;
         private byte[] pixels;
+        private string _path;
+
+        public static Image ModifiedImgSingleton;
 
         public MainWindow()
         {
@@ -52,41 +57,14 @@ namespace Biometrics
 
 
             if (op.ShowDialog() != true) return;
-
+            _path = op.FileName;
             origin = new BitmapImage(new Uri(op.FileName));
             OriginalImage.Source = origin;
             ModifiedImage.Source = origin;
+            ModifiedImgSingleton = ModifiedImage;
         }
 
-        private void RgbValueChanged(object sender, RoutedEventArgs e)
-        {
-            var r = RLabel.Text;
-            var g = GLabel.Text;
-            var b = BLabel.Text;
 
-            if (r == "" || g == "" || b == "")
-            {
-                MessageBox.Show("Wartości w polach RGB nie mogą być puste", "Uwaga", MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            int R, G, B;
-            var rsuccess = int.TryParse(r, out R);
-            var gsuccess = int.TryParse(g, out G);
-            var bsuccess = int.TryParse(b, out B);
-            if (!rsuccess || !gsuccess || !bsuccess)
-            {
-                MessageBox.Show("Wartości w polach RGB muszą być liczbowe", "Uwaga", MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;
-            }
-
-            if (R < 0 || R > 255 || G < 0 || G > 255 || B < 0 || B > 255)
-                MessageBox.Show("Wartości liczbowe w polach RGB muszą być z przedziału 0-255", "Uwaga",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-        }
 
 
         private void MouseClickedOnOriginalImage(object sender, MouseButtonEventArgs e)
@@ -112,29 +90,19 @@ namespace Biometrics
                 }
                 catch (Exception exc)
                 {
-                    MessageBox.Show(exc.Message);
+                    Debug.WriteLine(exc.StackTrace);
                 }
 
-                var aa = new RgbDialog(pixels[2], pixels[1], pixels[0], point);
-                
-                aa.Show();
-
-                RLabel.Text = pixels[2].ToString(CultureInfo.CurrentCulture);
-                GLabel.Text = pixels[1].ToString(CultureInfo.CurrentCulture);
-                BLabel.Text = pixels[0].ToString(CultureInfo.CurrentCulture);
-                pixelPoint = point;
+                var changePixel = new RgbDialog(pixels[2], pixels[1], pixels[0], point, origin);
+                changePixel.Show();
             }
             catch (Exception ee)
             {
-                MessageBox.Show(ee.Message);
+                Debug.WriteLine(ee.StackTrace);
             }
         }
 
-        private void OpenImage()
-        {
-        }
-
-        private static void SaveImageToFile(FrameworkElement img)
+        private static void SaveImageToFile(BitmapSource img)
         {
             var dialog = new SaveFileDialog
             {
@@ -171,7 +139,9 @@ namespace Biometrics
 
         private void MenuSaveImgFile_OnClick(object sender, RoutedEventArgs e)
         {
-            SaveImageToFile(ModifiedImage);
+            var bitmap = ModifiedImgSingleton.Source as BitmapSource;
+            SaveImageToFile(bitmap);
         }
+
     }
 }

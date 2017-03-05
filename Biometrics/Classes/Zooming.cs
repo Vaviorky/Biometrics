@@ -10,6 +10,8 @@ namespace Biometrics.Classes
     {
         private UIElement child;
         private Point origin;
+        private ScaleTransform originalScaleTransform;
+        private TranslateTransform originalTranslateTransform;
         private Point start;
 
         public override UIElement Child

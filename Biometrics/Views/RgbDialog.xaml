@@ -38,6 +38,6 @@
 
         </Grid>
         <Button Content="OK" Grid.Row="1" Grid.Column="1" Width="40" Height="20" HorizontalAlignment="Right"
-                Margin="0,0,10,0" Click="RgbButtonClicked" />
+                Margin="0,0,10,0" Click="RgbValueChanged" />
     </Grid>
 </Window>

@@ -1,56 +1,46 @@
 ﻿using System.IO;
-using System.Windows;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Biometrics.Classes
 {
     public static class SaveImage
     {
-        public static void SaveToBmp(FrameworkElement visual, string fileName)
+        public static void SaveToBmp(BitmapSource visual, string fileName)
         {
             var encoder = new BmpBitmapEncoder();
-            SaveUsingEncoder(visual, fileName, encoder);
+            SaveImgToFile(fileName, encoder, visual);
         }
 
-        public static void SaveToPng(FrameworkElement visual, string fileName)
+        public static void SaveToPng(BitmapSource visual, string fileName)
         {
             var encoder = new PngBitmapEncoder();
-            SaveUsingEncoder(visual, fileName, encoder);
+            SaveImgToFile(fileName, encoder, visual);
         }
 
-        public static void SaveToJpeg(FrameworkElement visual, string fileName)
+        public static void SaveToJpeg(BitmapSource visual, string fileName)
         {
             var encoder = new JpegBitmapEncoder();
-            SaveUsingEncoder(visual, fileName, encoder);
+            SaveImgToFile(fileName, encoder, visual);
         }
 
-        public static void SaveToGif(FrameworkElement visual, string fileName)
+        public static void SaveToGif(BitmapSource visual, string fileName)
         {
             var encoder = new JpegBitmapEncoder();
-            SaveUsingEncoder(visual, fileName, encoder);
+            SaveImgToFile(fileName, encoder, visual);
         }
 
-        public static void SaveToTiff(FrameworkElement visual, string fileName)
+        public static void SaveToTiff(BitmapSource visual, string fileName)
         {
             var encoder = new TiffBitmapEncoder();
-            SaveUsingEncoder(visual, fileName, encoder);
+            SaveImgToFile(fileName, encoder, visual);
         }
 
-        private static void SaveUsingEncoder(FrameworkElement visual, string fileName, BitmapEncoder encoder)
+        private static void SaveImgToFile(string filePath, BitmapEncoder encoder, BitmapSource source)
         {
-            var bitmap = new RenderTargetBitmap((int) visual.ActualWidth, (int) visual.ActualHeight, 96, 96,
-                PixelFormats.Pbgra32);
-            var visualSize = new Size(visual.ActualWidth, visual.ActualHeight);
-            visual.Measure(visualSize);
-            visual.Arrange(new Rect(visualSize));
-            bitmap.Render(visual);
-            var frame = BitmapFrame.Create(bitmap);
-            encoder.Frames.Add(frame);
-
-            using (var stream = File.Create(fileName))
+            using (var fileStream = new FileStream(filePath, FileMode.Create))
             {
-                encoder.Save(stream);
+                encoder.Frames.Add(BitmapFrame.Create(source));
+                encoder.Save(fileStream);
             }
         }
     }
