@@ -58,19 +58,26 @@
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="300*" />
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Row="0" Grid.Column="0" Background="Gray">
-                    <classes:Zooming ClipToBounds="True">
+                <Grid Grid.Row="0" Grid.Column="0" Background="Gray" MouseRightButtonUp="Image_MouseRightButtonUp">
+                    <Border ClipToBounds="True" Name="OriginalBorder" >
                         <Image x:Name="OriginalImage" Source="/InitialImage/pic.png"
                                RenderOptions.BitmapScalingMode="NearestNeighbor"
-                               MouseLeftButtonDown="MouseClickedOnOriginalImage" Stretch="None" />
-                    </classes:Zooming>
+                               MouseLeftButtonDown="Image_MouseClicked" MouseWheel="Image_MouseWheel"
+                               MouseMove="Image_MouseMove" MouseLeftButtonUp="Image_MouseLeftButtonUp"
+                               MouseRightButtonUp="Image_MouseRightButtonUp" />
+                    </Border>
                 </Grid>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" />
-                <Grid Grid.Row="0" Grid.Column="2" Background="Gray">
-                    <classes:Zooming ClipToBounds="True">
+                <Grid Grid.Row="0" Grid.Column="2" Background="Gray" MouseRightButtonUp="Image_MouseRightButtonUp">
+                    <Border ClipToBounds="True" Name="ModifiedBorder" >
                         <Image x:Name="ModifiedImage" RenderOptions.BitmapScalingMode="NearestNeighbor"
-                               Source="/InitialImage/pic.png" Stretch="None" />
-                    </classes:Zooming>
+                               MouseLeftButtonDown="Image_MouseClicked"
+                               Source="/InitialImage/pic.png" MouseWheel="Image_MouseWheel" MouseMove="Image_MouseMove"
+                               MouseLeftButtonUp="Image_MouseLeftButtonUp"
+                               MouseRightButtonUp="Image_MouseRightButtonUp" />
+                    </Border>
+
+
                 </Grid>
 
             </Grid>
