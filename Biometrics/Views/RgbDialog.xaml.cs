@@ -1,12 +1,8 @@
-﻿using System;
-using System.Drawing;
+﻿using System.IO;
 using System.Windows;
-using System.Windows.Interop;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Color = System.Windows.Media.Color;
-using Image = System.Windows.Controls.Image;
-using Point = System.Windows.Point;
 
 namespace Biometrics.Views
 {
@@ -16,26 +12,27 @@ namespace Biometrics.Views
     public partial class RgbDialog : Window
     {
         private readonly Image _modifiedImage;
+        private readonly BitmapSource _origin;
         private readonly byte _r, _g, _b;
         private readonly WriteableBitmap _writeableBitmap;
         private Point _mousePoint;
-        private readonly BitmapImage _origin;
-        private PixelFormat _pf = PixelFormats.Rgb24;
-
+        private byte[] _pixels;
         public RgbDialog()
         {
             InitializeComponent();
         }
 
-        public RgbDialog(byte r, byte g, byte b, Point mousePoint, BitmapImage origin)
+        public RgbDialog(byte []pixels, Point mousePoint, BitmapSource origin)
         {
             InitializeComponent();
 
+            _pixels = pixels;
+
             Left = mousePoint.X;
             Top = mousePoint.Y;
-            _r = r;
-            _g = g;
-            _b = b;
+            _r = pixels[2];
+            _g = pixels[1];
+            _b = pixels[0];
             _mousePoint = mousePoint;
             _origin = origin;
 
@@ -79,26 +76,55 @@ namespace Biometrics.Views
 
             Close();
 
-            var d = new DataObject(DataFormats.Bitmap, MainWindow.ModifiedImgSingleton.Source, true);
-            var bitmap = d.GetData("System.Drawing.Bitmap") as Bitmap;
 
-            var c = System.Drawing.Color.FromArgb(255, R, G, B);
-
-
+            BitmapSource image;
+            var wbm = MainWindow.ModifiedImgSingleton.Source as WriteableBitmap;
+            if (wbm != null)
+                image = ConvertWriteableBitmapToBitmapImage(wbm);
+            else
+                image =  (BitmapSource) MainWindow.ModifiedImgSingleton.Source;
+            var width = (int) image.Width;
+            var height = (int) image.Height;
+            var bitmap = new WriteableBitmap(image);
+            var stride = width * ((bitmap.Format.BitsPerPixel + 7) / 8);
+            var arraySize = stride * height;
+            var pixels = new byte[arraySize];
+            bitmap.CopyPixels(pixels, stride, 0);
             var proportionheight = _origin.PixelHeight / MainWindow.ModifiedImgSingleton.ActualHeight;
             var proportionwidth = _origin.PixelWidth / MainWindow.ModifiedImgSingleton.ActualWidth;
 
             var x = (int) (_mousePoint.X * proportionwidth);
             var y = (int) (_mousePoint.Y * proportionheight);
+            var j = 4 * x + y * stride;
 
-            bitmap.SetPixel(x, y, c);
+            pixels[j] = (byte) B;
+            pixels[j + 1] = (byte) G;
+            pixels[j + 2] = (byte) R;
+            pixels[j + 3] = 255;
 
-            var hBitmap = bitmap.GetHbitmap();
 
-            var bitmapsource = Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero,
-                Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            var rect = new Int32Rect(0, 0, width, height);
+            bitmap.WritePixels(rect, pixels, stride, 0);
+            MainWindow.ModifiedImgSingleton.Source = bitmap;
 
-            MainWindow.ModifiedImgSingleton.Source = bitmapsource;
+            MainWindow.ImageModificationsList.Add(bitmap);
+        }
+
+        private static BitmapImage ConvertWriteableBitmapToBitmapImage(BitmapSource wbm)
+        {
+            var bmImage = new BitmapImage();
+            using (var stream = new MemoryStream())
+            {
+                var encoder = new PngBitmapEncoder();
+                encoder.Frames.Add(BitmapFrame.Create(wbm));
+                encoder.Save(stream);
+                bmImage.BeginInit();
+                bmImage.CacheOption = BitmapCacheOption.OnLoad;
+                bmImage.StreamSource = stream;
+                bmImage.EndInit();
+                bmImage.Freeze();
+            }
+            return bmImage;
         }
     }
 }

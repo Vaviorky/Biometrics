@@ -3,7 +3,6 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:classes="clr-namespace:Biometrics.Classes"
         UseLayoutRounding="True"
         Background="#F1f1f1"
         mc:Ignorable="d"
@@ -13,23 +12,39 @@
             <RowDefinition Height="20" />
             <RowDefinition Height="35" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="35" />
             <RowDefinition Height="20" />
 
         </Grid.RowDefinitions>
         <Menu Width="Auto" Grid.Row="0">
             <MenuItem Header="_Plik">
-                <MenuItem x:Name="MenuOpenImgFile" Header="Otwórz obraz" HorizontalAlignment="Left" Width="160"
+                <MenuItem Header="Otwórz obraz" HorizontalAlignment="Left" Width="160"
                           Click="MenuOpenImgFileClick" />
-                <MenuItem x:Name="MenuSaveImgFile" Header="Zapisz obraz" HorizontalAlignment="Left" Width="160"
+                <MenuItem Header="Zapisz obraz" HorizontalAlignment="Left" Width="160"
                           Click="MenuSaveImgFile_OnClick" />
-                <MenuItem x:Name="MenuAppExit" Header="E_xit" HorizontalAlignment="Left" Width="160"
+                <MenuItem Header="E_xit" HorizontalAlignment="Left" Width="160"
                           Click="MenuExitApp" />
             </MenuItem>
-            <MenuItem Header="_Tools">
-                <MenuItem x:Name="Options" Header="_Options" HorizontalAlignment="Left" Width="140" />
+            <MenuItem Header="Przetwarzanie">
+                <MenuItem Header="Histogram" HorizontalAlignment="Left" Width="150">
+                    <MenuItem Header="Wyrównanie histogramu" HorizontalAlignment="Left" Width="220"
+                              Click="HistogramEqualizationOnClick" />
+                    <MenuItem Header="Rozciągnięcie histogramu" HorizontalAlignment="Left" Width="220"
+                              Click="HistogramStretchingOnClick" />
+                </MenuItem>
+
+                <MenuItem Header="Jasność" HorizontalAlignment="Left" Width="150">
+                    <MenuItem Header="Rozjaśnij" HorizontalAlignment="Left" Width="150" Click="ImageBrighteningOnClick" />
+                    <MenuItem Header="Przyciemnij" HorizontalAlignment="Left" Width="150" Click="ImageObscuringOnClick" />
+                </MenuItem>
+                <MenuItem Header="Binaryzacja" HorizontalAlignment="Left" Width="150">
+                    <MenuItem Header="Ręczny próg" HorizontalAlignment="Left" Width="225" Click="Binarisation_OwnTreshold" />
+                    <MenuItem Header="Automatyczny próg (Otsu)" HorizontalAlignment="Left" Width="225" Click="Binarisation_AutomaticThesholdOtsu" />
+                    <MenuItem Header="Lokalna (Niblack)" HorizontalAlignment="Left" Width="225" Click="Binarisation_LocalTresholdNiblack" />
+                </MenuItem>
             </MenuItem>
-            <MenuItem Header="_Help">
-                <MenuItem x:Name="About" Header="&amp;About" HorizontalAlignment="Left" Width="140" />
+            <MenuItem Header="Help">
+                <MenuItem Header="O programie" HorizontalAlignment="Left" Width="160" />
             </MenuItem>
         </Menu>
         <ToolBar Grid.Row="1">
@@ -43,11 +58,44 @@
                     <Image Source="Toolbar/save.png" Height="24" Width="24" />
                 </Button.Content>
             </Button>
+            <StackPanel Orientation="Horizontal">
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </StackPanel>
+            <Button Click="ModifiedImageBack">
+                <Button.Content>
+                    <Image Source="Toolbar/back.png" />
+                </Button.Content>
+            </Button>
+            <Button Click="ModifiedImageForward">
+                <Button.Content>
+                    <Image Source="Toolbar/forward.png" />
+                </Button.Content>
+            </Button>
+            <Button Click="BackToOriginalImage">
+                <Button.Content>
+                    <Image Source="Toolbar/original.png" />
+                </Button.Content>
+            </Button>
+            <StackPanel Orientation="Horizontal">
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </StackPanel>
+            <Button Click="OpenHistogram">
+                <Button.Content>
+                    <Image Source="Toolbar/histogram.png" />
+                </Button.Content>
+            </Button>
+            <StackPanel Orientation="Horizontal">
+                <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" />
+            </StackPanel>
+            <Button Click="TurnImageBlackWhiteOnClick">
+                <Button.Content>
+                    <Image Source="Toolbar/img_blackwhite.png" />
+                </Button.Content>
+            </Button>
         </ToolBar>
         <Grid Grid.Row="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
-                <RowDefinition Height="45" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
@@ -59,7 +107,7 @@
                     <ColumnDefinition Width="300*" />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Row="0" Grid.Column="0" Background="Gray" MouseRightButtonUp="Image_MouseRightButtonUp">
-                    <Border ClipToBounds="True" Name="OriginalBorder" >
+                    <Border ClipToBounds="True" Name="OriginalBorder">
                         <Image x:Name="OriginalImage" Source="/InitialImage/pic.png"
                                RenderOptions.BitmapScalingMode="NearestNeighbor"
                                MouseLeftButtonDown="Image_MouseClicked" MouseWheel="Image_MouseWheel"
@@ -69,22 +117,31 @@
                 </Grid>
                 <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Grid.Column="1" />
                 <Grid Grid.Row="0" Grid.Column="2" Background="Gray" MouseRightButtonUp="Image_MouseRightButtonUp">
-                    <Border ClipToBounds="True" Name="ModifiedBorder" >
+                    <Border ClipToBounds="True" Name="ModifiedBorder">
                         <Image x:Name="ModifiedImage" RenderOptions.BitmapScalingMode="NearestNeighbor"
                                MouseLeftButtonDown="Image_MouseClicked"
                                Source="/InitialImage/pic.png" MouseWheel="Image_MouseWheel" MouseMove="Image_MouseMove"
                                MouseLeftButtonUp="Image_MouseLeftButtonUp"
                                MouseRightButtonUp="Image_MouseRightButtonUp" />
                     </Border>
-
-
                 </Grid>
+            </Grid>
+        </Grid>
+        <Grid Grid.Row="3" HorizontalAlignment="Stretch">
+            <Grid HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="60" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox Name="ResolutionX" Grid.Column="0" Width="40" Height="30"
+                         TextChanged="ResolutionX_TextChanged" />
+                <TextBox Name="ResolutionY" Grid.Column="1" Width="40" Height="30"
+                         TextChanged="ResolutionY_TextChanged" />
 
             </Grid>
-
-
         </Grid>
-        <StatusBar Grid.Row="3" Background="#c8c8c8">
+        <StatusBar Grid.Row="4" Background="#c8c8c8">
             <StatusBarItem>
                 <TextBlock Name="ResolutionStatusBar" />
             </StatusBarItem>

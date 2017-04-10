@@ -1,0 +1,49 @@
+﻿<Window x:Class="Biometrics.Views.BinarisationOwnTreshold"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="BinarisationOwnTreshold" Height="300" Width="500">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="2*" />
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+
+            <Grid.RowDefinitions>
+                <RowDefinition />
+                <RowDefinition />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Label Content="Poziom progu:" Grid.Column="0" Margin="10,0" VerticalAlignment="Center"
+                       HorizontalAlignment="Right" />
+                <TextBox Name="TresholdTextBox" Grid.Column="1" Width="75" Height="25" Margin="10,0"
+                         HorizontalAlignment="Left" TextChanged="TresholdTextBoxTextChanged" Text="125" />
+            </Grid>
+            <Slider Name="ThesholdSlider" Margin="10" Grid.Row="1" VerticalAlignment="Center" TickFrequency="1"
+                    Maximum="255" ValueChanged="ThesholdSlider_OnValueChanged" Value="125" />
+
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button Width="75" Height="25" Content="OK" Grid.Column="0" Click="TreshloldButtonOkClick"/>
+                <Button Width="75" Height="25" Content="Anuluj" Grid.Column="1" Click="TreshholdButtonCancelClick"/>
+            </Grid>
+        </Grid>
+        <Grid Grid.Column="1">
+            <GroupBox Header="Podgląd" Width="200" Height="200">
+                <Image Name="PreviewImage" Margin="15"/>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>
