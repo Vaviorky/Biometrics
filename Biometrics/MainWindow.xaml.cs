@@ -65,6 +65,116 @@ namespace Biometrics
             histogramwindow.Show();
         }
 
+        #region filters
+
+        private void FilterItem_MaskOnClick(object sender, RoutedEventArgs e)
+        {
+            var manualMask = new ManualMask();
+            manualMask.Show();
+        }
+
+        private void FilterItem_BlurOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.Blur, 3);
+        }
+
+        private void FilterItem_PrewittHorizontalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.PrewittHorizontal, 3);
+        }
+
+        private void FilterItem_PrewittVerticalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.PrewittVertical, 3);
+        }
+
+        private void FilterItem_SobelHorizontalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SobelHorizontal, 3);
+        }
+
+        private void FilterItem_SobelVerticalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SobelVertical, 3);
+        }
+
+        private void FilterItem_LaplaceHorizontalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceHorizontal, 3);
+        }
+
+        private void FilterItem_LaplaceVerticalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceVertical, 3);
+        }
+
+        private void FilterItem_LaplaceDiagonalOnClick(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceDiagonal, 3);
+        }
+
+        private void FilterItem_DetectCornersEast(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.EastCorner, 3);
+        }
+
+        private void FilterItem_DetectCornersWest(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.WestCorner, 3);
+        }
+
+        private void FilterItem_DetectCornersNorthWest(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.NorthWestCorner, 3);
+        }
+
+        private void FilterItem_DetectCornersSouthEast(object sender, RoutedEventArgs e)
+        {
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SouthEastCorner, 3);
+        }
+
+        private async void FilterItem_KuwaharMask3(object sender, RoutedEventArgs e)
+        {
+            ProgressBarKuhara.Value = 0;
+            ProgressBarKuhara.Visibility = Visibility.Visible;
+            var progress = new Progress<int>(value => { ProgressBarKuhara.Value = value; });
+            ModifiedImgSingleton.Source = await Mask.PerformMask_Kuwahar(7, progress);
+
+            ProgressBarKuhara.Visibility = Visibility.Hidden;
+        }
+
+        private async void FilterItem_KuwaharMask5(object sender, RoutedEventArgs e)
+        {
+            ProgressBarKuhara.Value = 0;
+            ProgressBarKuhara.Visibility = Visibility.Visible;
+            var progress = new Progress<int>(value => { ProgressBarKuhara.Value = value; });
+            ModifiedImgSingleton.Source = await Mask.PerformMask_Kuwahar(5, progress);
+
+            ProgressBarKuhara.Visibility = Visibility.Hidden;
+        }
+
+        private async void FilterItem_Median3(object sender, RoutedEventArgs e)
+        {
+            ProgressBarKuhara.Value = 0;
+            ProgressBarKuhara.Visibility = Visibility.Visible;
+            var progress = new Progress<int>(value => { ProgressBarKuhara.Value = value; });
+            ModifiedImgSingleton.Source = await Mask.PerformMask_Median(3, progress);
+
+            ProgressBarKuhara.Visibility = Visibility.Hidden;
+        }
+
+        private async void FilterItem_Median5(object sender, RoutedEventArgs e)
+        {
+            ProgressBarKuhara.Value = 0;
+            ProgressBarKuhara.Visibility = Visibility.Visible;
+            var progress = new Progress<int>(value => { ProgressBarKuhara.Value = value; });
+            ModifiedImgSingleton.Source = await Mask.PerformMask_Median(5, progress);
+
+            ProgressBarKuhara.Visibility = Visibility.Hidden;
+        }
+
+        #endregion
+
         #region ModificationImageOptionsClickedEvents
 
         #region Histograms and Brightness

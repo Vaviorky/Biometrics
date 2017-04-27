@@ -38,10 +38,54 @@
                     <MenuItem Header="Przyciemnij" HorizontalAlignment="Left" Width="150" Click="ImageObscuringOnClick" />
                 </MenuItem>
                 <MenuItem Header="Binaryzacja" HorizontalAlignment="Left" Width="150">
-                    <MenuItem Header="Ręczny próg" HorizontalAlignment="Left" Width="225" Click="Binarisation_OwnTreshold" />
-                    <MenuItem Header="Automatyczny próg (Otsu)" HorizontalAlignment="Left" Width="225" Click="Binarisation_AutomaticThesholdOtsu" />
-                    <MenuItem Header="Lokalna (Niblack)" HorizontalAlignment="Left" Width="225" Click="Binarisation_LocalTresholdNiblack" />
+                    <MenuItem Header="Ręczny próg" HorizontalAlignment="Left" Width="225"
+                              Click="Binarisation_OwnTreshold" />
+                    <MenuItem Header="Automatyczny próg (Otsu)" HorizontalAlignment="Left" Width="225"
+                              Click="Binarisation_AutomaticThesholdOtsu" />
+                    <MenuItem Header="Lokalna (Niblack)" HorizontalAlignment="Left" Width="225"
+                              Click="Binarisation_LocalTresholdNiblack" />
                 </MenuItem>
+
+                <Separator />
+                <MenuItem Header="Filtry" HorizontalAlignment="Left" Width="150">
+                    <MenuItem Header="Maska" HorizontalAlignment="Left" Width="200" Click="FilterItem_MaskOnClick" />
+                    <MenuItem Header="Rozmycie" HorizontalAlignment="Left" Width="200" Click="FilterItem_BlurOnClick" />
+                    <MenuItem Header="Prewitt" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Poziomy" HorizontalAlignment="Left"
+                                  Click="FilterItem_PrewittHorizontalOnClick" />
+                        <MenuItem Header="Pionowy" HorizontalAlignment="Left" Click="FilterItem_PrewittVerticalOnClick" />
+                    </MenuItem>
+                    <MenuItem Header="Sobel" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Poziomy" HorizontalAlignment="Left" Click="FilterItem_SobelHorizontalOnClick" />
+                        <MenuItem Header="Pionowy" HorizontalAlignment="Left" Click="FilterItem_SobelVerticalOnClick" />
+                    </MenuItem>
+                    <MenuItem Header="Laplace" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Poziomy" HorizontalAlignment="Left"
+                                  Click="FilterItem_LaplaceHorizontalOnClick" />
+                        <MenuItem Header="Pionowy" HorizontalAlignment="Left" Click="FilterItem_LaplaceVerticalOnClick" />
+                        <MenuItem Header="Skośny" HorizontalAlignment="Left" Click="FilterItem_LaplaceDiagonalOnClick" />
+                    </MenuItem>
+                    <MenuItem Header="Wykrycie narożników" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Wschód" HorizontalAlignment="Left" Width="200"
+                                  Click="FilterItem_DetectCornersEast" />
+                        <MenuItem Header="Zachód" HorizontalAlignment="Left" Width="200"
+                                  Click="FilterItem_DetectCornersWest" />
+                        <MenuItem Header="Północny-Zachód" HorizontalAlignment="Left" Width="200"
+                                  Click="FilterItem_DetectCornersNorthWest" />
+                        <MenuItem Header="Południowy-Wschód" HorizontalAlignment="Left" Width="200"
+                                  Click="FilterItem_DetectCornersSouthEast" />
+                    </MenuItem>
+                    <MenuItem Header="Kuwahar" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Maska 3x3" HorizontalAlignment="Left" Click="FilterItem_KuwaharMask3" />
+                        <MenuItem Header="Maska 5x5" HorizontalAlignment="Left" Click="FilterItem_KuwaharMask5" />
+                    </MenuItem>
+                    <MenuItem Header="Medianowy" HorizontalAlignment="Left" Width="200">
+                        <MenuItem Header="Maska 3x3" HorizontalAlignment="Left" Click="FilterItem_Median3" />
+                        <MenuItem Header="Maska 5x5" HorizontalAlignment="Left" Click="FilterItem_Median5" />
+                    </MenuItem>
+                    <!-- <MenuItem Header="Canna" HorizontalAlignment="Left" Width="200" />-->
+                </MenuItem>
+
             </MenuItem>
             <MenuItem Header="Help">
                 <MenuItem Header="O programie" HorizontalAlignment="Left" Width="160" />
@@ -141,10 +185,15 @@
 
             </Grid>
         </Grid>
-        <StatusBar Grid.Row="4" Background="#c8c8c8">
-            <StatusBarItem>
-                <TextBlock Name="ResolutionStatusBar" />
-            </StatusBarItem>
-        </StatusBar>
+        <Grid Grid.Row="4" Background="#c8c8c8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="ResolutionStatusBar" Grid.Column="0" />
+            <Separator Grid.Column="1" />
+            <ProgressBar Minimum="0" Maximum="100" Name="ProgressBarKuhara" Grid.Column="2" />
+        </Grid>
     </Grid>
 </Window>

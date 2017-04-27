@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -9,12 +8,9 @@ namespace Biometrics.Views
     /// <summary>
     ///     Interaction logic for RgbDialog.xaml
     /// </summary>
-    public partial class RgbDialog : Window
+    public partial class RgbDialog
     {
-        private readonly Image _modifiedImage;
         private readonly BitmapSource _origin;
-        private readonly byte _r, _g, _b;
-        private readonly WriteableBitmap _writeableBitmap;
         private Point _mousePoint;
         private byte[] _pixels;
         public RgbDialog()
@@ -30,16 +26,16 @@ namespace Biometrics.Views
 
             Left = mousePoint.X;
             Top = mousePoint.Y;
-            _r = pixels[2];
-            _g = pixels[1];
-            _b = pixels[0];
+            var r = pixels[2];
+            var g = pixels[1];
+            var b = pixels[0];
             _mousePoint = mousePoint;
             _origin = origin;
 
-            RectangleColor.Fill = new SolidColorBrush(Color.FromRgb(_r, _g, _b));
-            RLabel.Text = _r.ToString();
-            GLabel.Text = _g.ToString();
-            BLabel.Text = _b.ToString();
+            RectangleColor.Fill = new SolidColorBrush(Color.FromRgb(r, g, b));
+            RLabel.Text = r.ToString();
+            GLabel.Text = g.ToString();
+            BLabel.Text = b.ToString();
         }
 
         private void RgbValueChanged(object sender, RoutedEventArgs e)

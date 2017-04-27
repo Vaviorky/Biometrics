@@ -234,8 +234,7 @@ namespace Biometrics.Classes
             var r = (windowSize - 1) / 2;
             var width = image1.Width;
             var imgHeight = image1.Height;
-            int z = 1;
-            int v = 1;
+            var z = 1;
 
             var imgSize = new Size(width, imgHeight);
 
@@ -364,7 +363,6 @@ namespace Biometrics.Classes
         {
             var bmp = new Bitmap(obrazek);
             var histogram = new int[256];
-            float max = 0;
 
             unsafe
             {

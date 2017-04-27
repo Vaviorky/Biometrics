@@ -20,7 +20,6 @@ namespace Biometrics.Views
         private static int[] HistogramU;
 
         private byte _option;
-        private BitmapSource previewBitmap;
 
         public HistogramStretching()
         {
@@ -56,9 +55,6 @@ namespace Biometrics.Views
                     HistogramRed.Points = HistogramWindow.ConvertToPointCollection(HistogramTools.HistogramU);
                     HistogramRed.Fill = Brushes.Gray;
                     _option = 3;
-                    break;
-
-                default:
                     break;
             }
 

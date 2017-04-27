@@ -60,6 +60,8 @@
     </ApplicationDefinition>
     <Compile Include="Classes\Binarization.cs" />
     <Compile Include="Classes\HistogramTools.cs" />
+    <Compile Include="Classes\Mask.cs" />
+    <Compile Include="Classes\MaskTables.cs" />
     <Compile Include="Views\BinarisationOwnTreshold.xaml.cs">
       <DependentUpon>BinarisationOwnTreshold.xaml</DependentUpon>
     </Compile>
@@ -68,6 +70,9 @@
     </Compile>
     <Compile Include="Views\HistogramWindow.xaml.cs">
       <DependentUpon>HistogramWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ManualMask.xaml.cs">
+      <DependentUpon>ManualMask.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Niblack.xaml.cs">
       <DependentUpon>Niblack.xaml</DependentUpon>
@@ -97,6 +102,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HistogramWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ManualMask.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
