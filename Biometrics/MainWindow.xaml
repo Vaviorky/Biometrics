@@ -46,6 +46,8 @@
                               Click="Binarisation_LocalTresholdNiblack" />
                 </MenuItem>
 
+                <MenuItem Header="Ścienianie" HorizontalAlignment="Left" Width="150" Click="Thining"/>
+
                 <Separator />
                 <MenuItem Header="Filtry" HorizontalAlignment="Left" Width="150">
                     <MenuItem Header="Maska" HorizontalAlignment="Left" Width="200" Click="FilterItem_MaskOnClick" />
@@ -60,10 +62,9 @@
                         <MenuItem Header="Pionowy" HorizontalAlignment="Left" Click="FilterItem_SobelVerticalOnClick" />
                     </MenuItem>
                     <MenuItem Header="Laplace" HorizontalAlignment="Left" Width="200">
-                        <MenuItem Header="Poziomy" HorizontalAlignment="Left"
-                                  Click="FilterItem_LaplaceHorizontalOnClick" />
-                        <MenuItem Header="Pionowy" HorizontalAlignment="Left" Click="FilterItem_LaplaceVerticalOnClick" />
-                        <MenuItem Header="Skośny" HorizontalAlignment="Left" Click="FilterItem_LaplaceDiagonalOnClick" />
+                        <MenuItem Header="Środek 4" HorizontalAlignment="Left"
+                                  Click="FilterItem_Laplace4OnClick" />
+                        <MenuItem Header="Środek 8" HorizontalAlignment="Left" Click="FilterItem_Laplace8OnClick" />
                     </MenuItem>
                     <MenuItem Header="Wykrycie narożników" HorizontalAlignment="Left" Width="200">
                         <MenuItem Header="Wschód" HorizontalAlignment="Left" Width="200"

@@ -76,61 +76,67 @@ namespace Biometrics
         private void FilterItem_BlurOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.Blur, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_PrewittHorizontalOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.PrewittHorizontal, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_PrewittVerticalOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.PrewittVertical, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_SobelHorizontalOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SobelHorizontal, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_SobelVerticalOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SobelVertical, 3);
+            HistogramTools.CalculateHistograms();
         }
 
-        private void FilterItem_LaplaceHorizontalOnClick(object sender, RoutedEventArgs e)
+        private void FilterItem_Laplace4OnClick(object sender, RoutedEventArgs e)
         {
-            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceHorizontal, 3);
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceMiddle4, 3);
+            HistogramTools.CalculateHistograms();
         }
 
-        private void FilterItem_LaplaceVerticalOnClick(object sender, RoutedEventArgs e)
+        private void FilterItem_Laplace8OnClick(object sender, RoutedEventArgs e)
         {
-            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceVertical, 3);
-        }
-
-        private void FilterItem_LaplaceDiagonalOnClick(object sender, RoutedEventArgs e)
-        {
-            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceDiagonal, 3);
+            ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.LaplaceMiddle8, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_DetectCornersEast(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.EastCorner, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_DetectCornersWest(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.WestCorner, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_DetectCornersNorthWest(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.NorthWestCorner, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private void FilterItem_DetectCornersSouthEast(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Mask.PerformMask(MaskTables.SouthEastCorner, 3);
+            HistogramTools.CalculateHistograms();
         }
 
         private async void FilterItem_KuwaharMask3(object sender, RoutedEventArgs e)
@@ -138,9 +144,10 @@ namespace Biometrics
             ProgressBarKuhara.Value = 0;
             ProgressBarKuhara.Visibility = Visibility.Visible;
             var progress = new Progress<int>(value => { ProgressBarKuhara.Value = value; });
-            ModifiedImgSingleton.Source = await Mask.PerformMask_Kuwahar(7, progress);
+            ModifiedImgSingleton.Source = await Mask.PerformMask_Kuwahar(3, progress);
 
             ProgressBarKuhara.Visibility = Visibility.Hidden;
+            HistogramTools.CalculateHistograms();
         }
 
         private async void FilterItem_KuwaharMask5(object sender, RoutedEventArgs e)
@@ -151,6 +158,7 @@ namespace Biometrics
             ModifiedImgSingleton.Source = await Mask.PerformMask_Kuwahar(5, progress);
 
             ProgressBarKuhara.Visibility = Visibility.Hidden;
+            HistogramTools.CalculateHistograms();
         }
 
         private async void FilterItem_Median3(object sender, RoutedEventArgs e)
@@ -161,6 +169,7 @@ namespace Biometrics
             ModifiedImgSingleton.Source = await Mask.PerformMask_Median(3, progress);
 
             ProgressBarKuhara.Visibility = Visibility.Hidden;
+            HistogramTools.CalculateHistograms();
         }
 
         private async void FilterItem_Median5(object sender, RoutedEventArgs e)
@@ -171,6 +180,7 @@ namespace Biometrics
             ModifiedImgSingleton.Source = await Mask.PerformMask_Median(5, progress);
 
             ProgressBarKuhara.Visibility = Visibility.Hidden;
+            HistogramTools.CalculateHistograms();
         }
 
         #endregion
@@ -656,5 +666,17 @@ namespace Biometrics
         }
 
         #endregion
+
+        private void Thining(object sender, RoutedEventArgs e)
+        {
+            if (!ImgThining.IsImageBinarizated((BitmapSource)ModifiedImgSingleton.Source))
+            {
+                MessageBox.Show("Obraz musi zostać zbinaryzowany!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+           ModifiedImgSingleton.Source =  ImgThining.ThinImage((BitmapSource) ModifiedImgSingleton.Source);
+
+        }
     }
 }

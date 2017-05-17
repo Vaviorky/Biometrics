@@ -62,6 +62,7 @@
     <Compile Include="Classes\HistogramTools.cs" />
     <Compile Include="Classes\Mask.cs" />
     <Compile Include="Classes\MaskTables.cs" />
+    <Compile Include="Classes\ImgThining.cs" />
     <Compile Include="Views\BinarisationOwnTreshold.xaml.cs">
       <DependentUpon>BinarisationOwnTreshold.xaml</DependentUpon>
     </Compile>
