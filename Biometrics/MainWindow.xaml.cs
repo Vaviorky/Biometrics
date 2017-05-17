@@ -33,7 +33,7 @@ namespace Biometrics
             _originalImgBitmap = new BitmapImage(new Uri(@"pack://application:,,,/"
                                                          + Assembly.GetExecutingAssembly().GetName().Name
                                                          + ";component/"
-                                                         + "InitialImage/pic.png", UriKind.Absolute));
+                                                         + "InitialImage/test1.png", UriKind.Absolute));
             var width = _originalImgBitmap.PixelWidth.ToString();
             var height = _originalImgBitmap.PixelHeight.ToString();
             ResolutionStatusBar.Text = width + " x " + height;

@@ -22,6 +22,7 @@ namespace Biometrics.Classes
 
         private static byte[] _pixels;
         private static int _stride;
+        private static int _width, _height;
 
         public static bool IsImageBinarizated(BitmapSource image)
         {
@@ -30,22 +31,22 @@ namespace Biometrics.Classes
             var width = bitmap.PixelWidth;
             var height = bitmap.PixelHeight;
 
-            _stride = width * ((bitmap.Format.BitsPerPixel + 7) / 8);
+            var stide = width * ((bitmap.Format.BitsPerPixel + 7) / 8);
 
-            var arraySize = _stride * height;
-            _pixels = new byte[arraySize];
+            var arraySize = stide * height;
+            var pixels = new byte[arraySize];
 
             //copy all data about pixels values into 1-dimentional array
-            bitmap.CopyPixels(_pixels, _stride, 0);
+            bitmap.CopyPixels(pixels, stide, 0);
 
             var j = 0;
             //count occurences of each intensity value which occur in image and store it
-            for (var i = 0; i < _pixels.Length / 4; i++)
+            for (var i = 0; i < pixels.Length / 4; i++)
             {
                 //get pixels channels values
-                var r = _pixels[j + 2];
-                var g = _pixels[j + 1];
-                var b = _pixels[j];
+                var r = pixels[j + 2];
+                var g = pixels[j + 1];
+                var b = pixels[j];
 
                 //check if image is binary
                 if (r != 0 || g != 0 || b != 0)
@@ -121,48 +122,126 @@ namespace Biometrics.Classes
         {
             var bitmap = new WriteableBitmap(original);
 
-            var width = bitmap.PixelWidth;
-            var height = bitmap.PixelHeight;
+            _width = bitmap.PixelWidth;
+            _height = bitmap.PixelHeight;
 
-            _stride = width * ((bitmap.Format.BitsPerPixel + 7) / 8);
+            _stride = _width * ((bitmap.Format.BitsPerPixel + 7) / 8);
 
-            var arraySize = _stride * height;
+            var arraySize = _stride * _height;
             _pixels = new byte[arraySize];
 
             //copy all data about pixels values into 1-dimentional array
             bitmap.CopyPixels(_pixels, _stride, 0);
-            bool thinned;
+
+            bool thinned, lastPixel = false;
+            int count = 0;
             do
             {
                 thinned = true;
 
                 //BORDER
-                for (int y = 0; y < height; y++)
+                for (int x = 0; x < _width; x++)
                 {
-                    for (int x = 0; x < width; x++)
+                    for (int y = 0; y < _height; y++)
                     {
-                        if (IsColor(Color.White, N(x, y)) || IsColor(Color.White, S(x, y)) ||
-                            IsColor(Color.White, W(x, y)) || IsColor(Color.White, S(x, y)))
+                        if (y == _height - 1 && x == _width - 1 && !lastPixel)
                         {
+                            var xxx = 5;
+                            lastPixel = true;
                             SetPixel(x, y, Color.Red);
                         }
-                        else if (IsColor(Color.White, NW(x, y)) || IsColor(Color.White, SW(x, y)) ||
-                                 IsColor(Color.White, SE(x, y)) || IsColor(Color.White, NE(x, y)))
+
+                        if (IsColor(Color.White, N(x, y)) || IsColor(Color.White, S(x, y)) ||
+                            IsColor(Color.White, W(x, y)) || IsColor(Color.White, E(x, y)))
                         {
-                            SetPixel(x, y, Color.Magenta);
+                            SetPixel(x, y, Color.Red); //3
+                        }
+                        else if (IsColor(Color.White, NE(x, y)) || IsColor(Color.White, NW(x, y)) ||
+                                 IsColor(Color.White, SE(x, y)) || IsColor(Color.White, SW(x, y)))
+                        {
+                            SetPixel(x, y, Color.Magenta); //4
                         }
                     }
                 }
+
+                //ROUND
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (!IsColor(Color.Red, C(x, y)))
+                        {
+                            continue;
+                        }
+
+                        if (CanRound(Weight(x, y)))
+                        {
+                            SetPixel(x, y, Color.Green);
+                        }
+                    }
+                }
+
+                //CLEAR
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Green, C(x, y)))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+
+                        }
+                    }
+                }
+
+                //FINISH A
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (!IsColor(Color.Red, C(x, y)))
+                        {
+                            continue;
+                        }
+                        if (CanKill(Weight(x, y)))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                        else
+                        {
+                            SetPixel(x, y, Color.Black);
+                        }
+                    }
+                }
+
+                //FINISH B
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (!IsColor(Color.Magenta, C(x, y)))
+                        {
+                            continue;
+                        }
+                        if (CanKill(Weight(x, y)))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                        else
+                        {
+                            SetPixel(x, y, Color.Black);
+                        }
+                    }
+                }
+
             } while (!thinned);
 
-            var rect = new Int32Rect(0, 0, width, height);
+            var rect = new Int32Rect(0, 0, _width, _height);
             bitmap.WritePixels(rect, _pixels, _stride, 0);
             return bitmap;
-        }
-
-        private static int PositionInArray(int x, int y)
-        {
-            return 4 * x + y * _stride;
         }
 
         private static byte[] NW(int x, int y)
@@ -205,20 +284,35 @@ namespace Biometrics.Classes
             return GetPixel(x - 1, y);
         }
 
+        private static byte[] C(int x, int y)
+        {
+            return GetPixel(x, y);
+        }
+
         private static byte[] GetPixel(int x, int y)
         {
             int j = PositionInArray(x, y);
-            if (j < 0)
+
+            if (j < 0 || y > _height - 1 || x > _width - 1)
             {
                 return null;
             }
-            byte[] pixel = {_pixels[j + 2], _pixels[j + 1], _pixels[j]};
+            byte[] pixel = new byte[3];
+            pixel[0] = _pixels[j + 2];
+            pixel[1] = _pixels[j + 1];
+            pixel[2] = _pixels[j];
+
             return pixel;
         }
 
         private static void SetPixel(int x, int y, Color color)
         {
             int j = PositionInArray(x, y);
+
+            if (y > _height - 1)
+            {
+                return;
+            }
 
             switch (color)
             {
@@ -238,6 +332,18 @@ namespace Biometrics.Classes
                     _pixels[j + 1] = 0;
                     _pixels[j] = 255;
                     break;
+
+                case Color.Green:
+                    _pixels[j + 2] = 0;
+                    _pixels[j + 1] = 255;
+                    _pixels[j] = 0;
+                    break;
+
+                case Color.Black:
+                    _pixels[j + 2] = 0;
+                    _pixels[j + 1] = 0;
+                    _pixels[j] = 0;
+                    break;
             }
         }
 
@@ -253,7 +359,77 @@ namespace Biometrics.Classes
                 return true;
             }
 
+            if (color == Color.Red && pixel[0] == 255 && pixel[1] == 0 && pixel[2] == 0)
+            {
+                return true;
+            }
+
+            if (color == Color.Magenta && pixel[0] == 255 && pixel[1] == 0 && pixel[2] == 255)
+            {
+                return true;
+            }
+
+            if (color == Color.Green && pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0)
+            {
+                return true;
+            }
+
+            if (color == Color.Black && pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0)
+            {
+                return true;
+            }
+
             return false;
+        }
+
+        private static int Weight(int x, int y)
+        {
+            int weight = 0;
+
+            if (IsColor(Color.Black, NW(x, y)))
+            {
+                weight += 128;
+            }
+            if (IsColor(Color.Black, N(x, y)))
+            {
+                weight += 1;
+            }
+            if (IsColor(Color.Black, NE(x, y)))
+            {
+                weight += 2;
+            }
+            if (IsColor(Color.Black, E(x, y)))
+            {
+                weight += 4;
+            }
+            if (IsColor(Color.Black, SE(x, y)))
+            {
+                weight += 8;
+            }
+            if (IsColor(Color.Black, S(x, y)))
+            {
+                weight += 16;
+            }
+            if (IsColor(Color.Black, SW(x, y)))
+            {
+                weight += 32;
+            }
+            if (IsColor(Color.Black, W(x, y)))
+            {
+                weight += 64;
+            }
+            return weight;
+        }
+
+        //white
+        private static void Delete(int x, int y)
+        {
+            SetPixel(x, y, Color.White);
+        }
+
+        private static int PositionInArray(int x, int y)
+        {
+            return 4 * x + y * _stride;
         }
     }
 }
