@@ -23,6 +23,7 @@ namespace Biometrics.Classes
         private static byte[] _pixels;
         private static int _stride;
         private static int _width, _height;
+        private static int[,] intPixels;
 
         public static bool IsImageBinarizated(BitmapSource image)
         {
@@ -62,61 +63,65 @@ namespace Biometrics.Classes
             return true;
         }
 
-        private static bool[] BuildKillsArray(int[] kills)
+        //0
+        private static readonly int[] A0 =
         {
-            bool[] ar = new bool[256];
+            3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56, 60,
+            62, 63, 96, 112, 120, 124, 126, 127, 129, 131,
+            135, 143, 159, 191, 192, 193, 195, 199, 207, 223,
+            224, 225, 227, 231, 239, 240, 241, 243, 247, 248,
+            249, 251, 252, 253, 254
+        };
 
-            for (int i = 0; i < ar.Length; i++)
-            {
-                ar[i] = false;
-            }
 
-            for (int i = 0; i < kills.Length; ++i)
-                ar[kills[i]] = true;
-            return ar;
-        }
-
-        private static readonly bool[] KillsRound = BuildKillsArray(new int[]
+        //1
+        private static readonly int[] A1 =
         {
-            3, 12, 48, 192, 6, 24, 96, 129, //	-	2 s�siad�w
-            14, 56, 131, 224, 7, 28, 112, 193, //	-	3 s�siad�w
-            195, 135, 15, 30, 60, 120, 240, 225, //	-	4 s�siad�w
-//			31, 62, 124, 248, 241, 227, 199, 143,//	-	5 s�siad�w
-//			63, 126, 252, 249, 243, 231, 207, 159,//-	6 s�siad�w
-//			254, 253, 251, 247, 239, 223, 190, 127,//-	7 s�siad�w
-        });
+            7, 14, 28, 56, 112, 131, 193, 224
+        };
 
-        private static bool CanRound(int weight)
+        //2
+        private static readonly int[] A2 =
         {
-            return KillsRound[weight];
-        }
+            7, 14, 15, 28, 30, 56, 60, 112, 120, 131, 135,
+            193, 195, 224, 225, 240
+        };
 
-        private static readonly bool[] KillsFinish = BuildKillsArray(new int[]
+        //3
+        private static readonly int[] A3 =
         {
-            5, 13, 15, 20, 21, 22, 23, 29,
-            30, 31, 52, 53, 54, 55, 60, 61,
-            62, 63, 65, 67, 69, 71, 77, 79,
-            80, 81, 83, 84, 85, 86, 87, 88,
-            89, 91, 92, 93, 94, 95, 97, 99,
-            101, 103, 109, 111, 113, 115, 116, 117,
-            118, 119, 120, 121, 123, 124, 125, 126,
-            127, 133, 135, 141, 143, 149, 151, 157,
-            159, 181, 183, 189, 191, 195, 197, 199,
-            205, 207, 208, 209, 211, 212, 213, 214,
-            215, 216, 217, 219, 220, 221, 222, 223,
-            225, 227, 229, 231, 237, 239, 240, 241,
-            243, 244, 245, 246, 247, 248, 249, 251,
-            252, 253, 254, 255,
+            7, 14, 15, 28, 30, 31, 56, 60, 62, 112, 120, 124,
+            131, 135, 143, 193, 195, 199, 224, 225, 227, 240,
+            241, 248
+        };
 
-            3, 12, 48, 192, //	-	2 s�siad�w
-            14, 56, 131, 224, //	-	3 s�siad�w 'I'
-            7, 28, 112, 193, //	-	3 s�siad�w 'L'
-        });
-
-        private static bool CanKill(int weight)
+        //4
+        private static readonly int[] A4 =
         {
-            return KillsFinish[weight];
-        }
+            7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120,
+            124, 126, 131, 135, 143, 159, 193, 195, 199, 207,
+            224, 225, 227, 231, 240, 241, 243, 248, 249, 252
+        };
+
+        //5
+        private static readonly int[] A5 =
+        {
+            7, 14, 15, 28, 30, 31, 56, 60, 62, 63, 112, 120,
+            124, 126, 131, 135, 143, 159, 191, 193, 195, 199,
+            207, 224, 225, 227, 231, 239, 240, 241, 243, 248,
+            249, 251, 252, 254
+        };
+
+        //finish
+        private static readonly int[] A1Pix =
+        {
+            3, 6, 7, 12, 14, 15, 24, 28, 30, 31, 48, 56,
+            60, 62, 63, 96, 112, 120, 124, 126, 127, 129, 131,
+            135, 143, 159, 191, 192, 193, 195, 199, 207, 223,
+            224, 225, 227, 231, 239, 240, 241, 243, 247, 248,
+            249, 251, 252, 253, 254
+        };
+
 
         public static BitmapSource ThinImage(BitmapSource original)
         {
@@ -133,248 +138,267 @@ namespace Biometrics.Classes
             //copy all data about pixels values into 1-dimentional array
             bitmap.CopyPixels(_pixels, _stride, 0);
 
-            bool thinned, lastPixel = false;
-            int count = 0;
+            InitIntImage();
+
+            bool thinned;
             do
             {
                 thinned = true;
 
-                //BORDER
+                //phase zero, mark "two"
                 for (int x = 0; x < _width; x++)
                 {
                     for (int y = 0; y < _height; y++)
                     {
-                        if (y == _height - 1 && x == _width - 1 && !lastPixel)
+                        if (intPixels[x, y] == 1 && Weight(x, y, A0))
                         {
-                            var xxx = 5;
-                            lastPixel = true;
                             SetPixel(x, y, Color.Red);
                         }
-
-                        if (IsColor(Color.White, N(x, y)) || IsColor(Color.White, S(x, y)) ||
-                            IsColor(Color.White, W(x, y)) || IsColor(Color.White, E(x, y)))
-                        {
-                            SetPixel(x, y, Color.Red); //3
-                        }
-                        else if (IsColor(Color.White, NE(x, y)) || IsColor(Color.White, NW(x, y)) ||
-                                 IsColor(Color.White, SE(x, y)) || IsColor(Color.White, SW(x, y)))
-                        {
-                            SetPixel(x, y, Color.Magenta); //4
-                        }
                     }
+
                 }
 
-                //ROUND
+                //phase one, delete with 3 neighours
                 for (int x = 0; x < _width; x++)
                 {
                     for (int y = 0; y < _height; y++)
                     {
-                        if (!IsColor(Color.Red, C(x, y)))
-                        {
-                            continue;
-                        }
-
-                        if (CanRound(Weight(x, y)))
-                        {
-                            SetPixel(x, y, Color.Green);
-                        }
-                    }
-                }
-
-                //CLEAR
-                for (int x = 0; x < _width; x++)
-                {
-                    for (int y = 0; y < _height; y++)
-                    {
-                        if (IsColor(Color.Green, C(x, y)))
-                        {
-                            Delete(x, y);
-                            thinned = false;
-
-                        }
-                    }
-                }
-
-                //FINISH A
-                for (int x = 0; x < _width; x++)
-                {
-                    for (int y = 0; y < _height; y++)
-                    {
-                        if (!IsColor(Color.Red, C(x, y)))
-                        {
-                            continue;
-                        }
-                        if (CanKill(Weight(x, y)))
+                        if (IsColor(Color.Red, C(x, y)) && Weight(x, y, A1))
                         {
                             Delete(x, y);
                             thinned = false;
                         }
-                        else
+                    }
+                }
+
+                //phase two, delete with 3 or 4 neighours
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Red, C(x, y)) && Weight(x, y, A2))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                    }
+                }
+
+                //phase three, delete with 3 or 4 or 5 neighours
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Red, C(x, y)) && Weight(x, y, A3))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                    }
+                }
+
+                //phase four, delete with 3 or 4 or 5 or 6 neighours
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Red, C(x, y)) && Weight(x, y, A4))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                    }
+                }
+
+                //phase five, delete with 3 or 4 or 5 or 6 or 7 neighours
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Red, C(x, y)) && Weight(x, y, A5))
+                        {
+                            Delete(x, y);
+                            thinned = false;
+                        }
+                    }
+                }
+
+                //red back to black
+                for (int x = 0; x < _width; x++)
+                {
+                    for (int y = 0; y < _height; y++)
+                    {
+                        if (IsColor(Color.Red, C(x, y)))
                         {
                             SetPixel(x, y, Color.Black);
                         }
                     }
                 }
 
-                //FINISH B
-                for (int x = 0; x < _width; x++)
-                {
-                    for (int y = 0; y < _height; y++)
-                    {
-                        if (!IsColor(Color.Magenta, C(x, y)))
-                        {
-                            continue;
-                        }
-                        if (CanKill(Weight(x, y)))
-                        {
-                            Delete(x, y);
-                            thinned = false;
-                        }
-                        else
-                        {
-                            SetPixel(x, y, Color.Black);
-                        }
-                    }
-                }
 
             } while (!thinned);
+
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    if (IsColor(Color.Black, C(x, y)) && Weight(x, y, A1Pix))
+                    {
+                        Delete(x, y);
+                    }
+                }
+            }
+
+            RevertIntPixelsIntoPixelArray();
 
             var rect = new Int32Rect(0, 0, _width, _height);
             bitmap.WritePixels(rect, _pixels, _stride, 0);
             return bitmap;
         }
 
-        private static byte[] NW(int x, int y)
+        private static void RevertIntPixelsIntoPixelArray()
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    int j = PositionInArray(x, y);
+
+                    if (intPixels[x, y] == 0)
+                    {
+                        _pixels[j + 2] = 255;
+                        _pixels[j + 1] = 255;
+                        _pixels[j] = 255;
+                    }
+
+                    if (intPixels[x, y] == 1)
+                    {
+                        _pixels[j + 2] = 0;
+                        _pixels[j + 1] = 0;
+                        _pixels[j] = 0;
+                    }
+
+                    if (intPixels[x, y] == 2)
+                    {
+                        _pixels[j + 2] = 255;
+                        _pixels[j + 1] = 0;
+                        _pixels[j] = 0;
+                    }
+
+                }
+            }
+        }
+
+        private static void InitIntImage()
+        {
+            intPixels = new int[_width, _height];
+
+            for (int x = 0; x < _width; x++)
+            {
+                for (int y = 0; y < _height; y++)
+                {
+                    int j = PositionInArray(x, y);
+
+                    if (_pixels[j + 2] == 255 && _pixels[j + 1] == 255 && _pixels[j] == 255)
+                    {
+                        intPixels[x, y] = 0;
+                    }
+                    else if (_pixels[j + 2] == 0 && _pixels[j + 1] == 0 && _pixels[j] == 0)
+                    {
+                        intPixels[x, y] = 1;
+                    }
+                }
+            }
+        }
+
+        private static int NW(int x, int y)
         {
             return GetPixel(x - 1, y - 1);
         }
 
-        private static byte[] N(int x, int y)
+        private static int N(int x, int y)
         {
             return GetPixel(x, y - 1);
         }
 
-        private static byte[] NE(int x, int y)
+        private static int NE(int x, int y)
         {
             return GetPixel(x + 1, y - 1);
         }
 
-        private static byte[] E(int x, int y)
+        private static int E(int x, int y)
         {
             return GetPixel(x + 1, y);
         }
 
-        private static byte[] SE(int x, int y)
+        private static int SE(int x, int y)
         {
             return GetPixel(x + 1, y + 1);
         }
 
-        private static byte[] S(int x, int y)
+        private static int S(int x, int y)
         {
             return GetPixel(x, y + 1);
         }
 
-        private static byte[] SW(int x, int y)
+        private static int SW(int x, int y)
         {
             return GetPixel(x - 1, y + 1);
         }
 
-        private static byte[] W(int x, int y)
+        private static int W(int x, int y)
         {
             return GetPixel(x - 1, y);
         }
 
-        private static byte[] C(int x, int y)
+        private static int C(int x, int y)
         {
             return GetPixel(x, y);
         }
 
-        private static byte[] GetPixel(int x, int y)
+        private static int GetPixel(int x, int y)
         {
             int j = PositionInArray(x, y);
 
             if (j < 0 || y > _height - 1 || x > _width - 1)
             {
-                return null;
+                return -1;
             }
-            byte[] pixel = new byte[3];
-            pixel[0] = _pixels[j + 2];
-            pixel[1] = _pixels[j + 1];
-            pixel[2] = _pixels[j];
 
-            return pixel;
+            return intPixels[x, y];
         }
 
         private static void SetPixel(int x, int y, Color color)
         {
-            int j = PositionInArray(x, y);
-
-            if (y > _height - 1)
-            {
-                return;
-            }
-
             switch (color)
             {
                 case Color.White:
-                    _pixels[j + 2] = 255;
-                    _pixels[j + 1] = 255;
-                    _pixels[j] = 255;
-                    break;
-                case Color.Red:
-                    _pixels[j + 2] = 255;
-                    _pixels[j + 1] = 0;
-                    _pixels[j] = 0;
-                    break;
-
-                case Color.Magenta:
-                    _pixels[j + 2] = 255;
-                    _pixels[j + 1] = 0;
-                    _pixels[j] = 255;
-                    break;
-
-                case Color.Green:
-                    _pixels[j + 2] = 0;
-                    _pixels[j + 1] = 255;
-                    _pixels[j] = 0;
+                    intPixels[x, y] = 0;
                     break;
 
                 case Color.Black:
-                    _pixels[j + 2] = 0;
-                    _pixels[j + 1] = 0;
-                    _pixels[j] = 0;
+                    intPixels[x, y] = 1;
+                    break;
+
+                case Color.Red:
+                    intPixels[x, y] = 2;
                     break;
             }
         }
 
-        private static bool IsColor(Color color, byte[] pixel)
+        private static bool IsColor(Color color, int pixel)
         {
-            if (pixel == null)
-            {
-                return false;
-            }
-
-            if (color == Color.White && pixel[0] == 255 && pixel[1] == 255 && pixel[2] == 255)
+            if (color == Color.White && pixel == 0)
             {
                 return true;
             }
 
-            if (color == Color.Red && pixel[0] == 255 && pixel[1] == 0 && pixel[2] == 0)
+            if (color == Color.Black && pixel == 1)
             {
                 return true;
             }
 
-            if (color == Color.Magenta && pixel[0] == 255 && pixel[1] == 0 && pixel[2] == 255)
-            {
-                return true;
-            }
-
-            if (color == Color.Green && pixel[0] == 0 && pixel[1] == 255 && pixel[2] == 0)
-            {
-                return true;
-            }
-
-            if (color == Color.Black && pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0)
+            if (color == Color.Red && pixel == 2)
             {
                 return true;
             }
@@ -382,43 +406,12 @@ namespace Biometrics.Classes
             return false;
         }
 
-        private static int Weight(int x, int y)
+        private static bool Weight(int x, int y, int[] array)
         {
-            int weight = 0;
+            int weight = 1 * (N(x, y) % 2) + 2 * (NE(x, y) % 2) + 4 * (E(x, y) % 2) + 8 * (SE(x, y) % 2)
+                + 16 * (S(x, y) % 2) + 32 * (SW(x, y) % 2) + 64 * (W(x, y) % 2) + 128 * (NW(x, y) % 2);
 
-            if (IsColor(Color.Black, NW(x, y)))
-            {
-                weight += 128;
-            }
-            if (IsColor(Color.Black, N(x, y)))
-            {
-                weight += 1;
-            }
-            if (IsColor(Color.Black, NE(x, y)))
-            {
-                weight += 2;
-            }
-            if (IsColor(Color.Black, E(x, y)))
-            {
-                weight += 4;
-            }
-            if (IsColor(Color.Black, SE(x, y)))
-            {
-                weight += 8;
-            }
-            if (IsColor(Color.Black, S(x, y)))
-            {
-                weight += 16;
-            }
-            if (IsColor(Color.Black, SW(x, y)))
-            {
-                weight += 32;
-            }
-            if (IsColor(Color.Black, W(x, y)))
-            {
-                weight += 64;
-            }
-            return weight;
+            return array.Contains(weight);
         }
 
         //white

@@ -153,7 +153,7 @@
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Row="0" Grid.Column="0" Background="Gray" MouseRightButtonUp="Image_MouseRightButtonUp">
                     <Border ClipToBounds="True" Name="OriginalBorder">
-                        <Image x:Name="OriginalImage" Source="/InitialImage/test1.png"
+                        <Image x:Name="OriginalImage" Source="/InitialImage/finger.png"
                                RenderOptions.BitmapScalingMode="NearestNeighbor"
                                MouseLeftButtonDown="Image_MouseClicked" MouseWheel="Image_MouseWheel"
                                MouseMove="Image_MouseMove" MouseLeftButtonUp="Image_MouseLeftButtonUp"
@@ -165,7 +165,7 @@
                     <Border ClipToBounds="True" Name="ModifiedBorder">
                         <Image x:Name="ModifiedImage" RenderOptions.BitmapScalingMode="NearestNeighbor"
                                MouseLeftButtonDown="Image_MouseClicked"
-                               Source="/InitialImage/test1.png" MouseWheel="Image_MouseWheel" MouseMove="Image_MouseMove"
+                               Source="/InitialImage/finger.png" MouseWheel="Image_MouseWheel" MouseMove="Image_MouseMove"
                                MouseLeftButtonUp="Image_MouseLeftButtonUp"
                                MouseRightButtonUp="Image_MouseRightButtonUp" />
                     </Border>

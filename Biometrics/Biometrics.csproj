@@ -63,6 +63,7 @@
     <Compile Include="Classes\Mask.cs" />
     <Compile Include="Classes\MaskTables.cs" />
     <Compile Include="Classes\ImgThining.cs" />
+    <Compile Include="Classes\Minutia.cs" />
     <Compile Include="Views\BinarisationOwnTreshold.xaml.cs">
       <DependentUpon>BinarisationOwnTreshold.xaml</DependentUpon>
     </Compile>
@@ -176,6 +177,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="InitialImage\test1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="InitialImage\finger.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
