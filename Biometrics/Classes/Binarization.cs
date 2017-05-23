@@ -248,18 +248,18 @@ namespace Biometrics.Classes
                     for (var y = 0; y < pierwszaWysokosc; y++)
                     for (var x = 0; x < width; x++)
                     {
-                        var prog = GetThreshold(imgSize, image1, r, k, windowSize,x,y);
+                        var prog = GetThreshold(imgSize, image1, r, k, windowSize, x, y);
                         tresholdList1.Add(prog);
                         if (progress != null)
                             progress.Report(z);
                         z++;
-                        }
+                    }
                 }, () =>
                 {
                     for (var y = pierwszaWysokosc; y <= imgHeight; y++)
                     for (var x = 0; x < width; x++)
                     {
-                        var prog = GetThreshold(imgSize, image2, r, k, windowSize,x, y);
+                        var prog = GetThreshold(imgSize, image2, r, k, windowSize, x, y);
                         tresholdList2.Add(prog);
                     }
                 });
@@ -306,7 +306,7 @@ namespace Biometrics.Classes
 
             var rect = new Int32Rect(0, 0, width, height);
             bitmap.WritePixels(rect, pixels, stride, 0);
-            
+
             return bitmap;
         }
 

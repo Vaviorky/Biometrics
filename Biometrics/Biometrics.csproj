@@ -60,6 +60,13 @@
     </ApplicationDefinition>
     <Compile Include="Classes\Binarization.cs" />
     <Compile Include="Classes\HistogramTools.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\DBConnection\Database.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Model\DbModel.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Keystroke\Key.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Keystroke\KeyStruct.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Keystroke\User.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Model\Chars.cs" />
+    <Compile Include="Classes\KeyStrokeDynamics\Model\KeyStruct.cs" />
     <Compile Include="Classes\Mask.cs" />
     <Compile Include="Classes\MaskTables.cs" />
     <Compile Include="Classes\ImgThining.cs" />
@@ -181,6 +188,7 @@
   <ItemGroup>
     <Resource Include="InitialImage\finger.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
