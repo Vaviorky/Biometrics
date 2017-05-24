@@ -43,8 +43,8 @@ namespace Biometrics
             ResolutionY.Text = height;
             SaveImage.X = int.Parse(ResolutionX.Text);
             SaveImage.Y = int.Parse(ResolutionY.Text);
-            _originalMatrix = (MatrixTransform) OriginalImage.RenderTransform;
-            _modifiedMatrix = (MatrixTransform) ModifiedImage.RenderTransform;
+            _originalMatrix = (MatrixTransform)OriginalImage.RenderTransform;
+            _modifiedMatrix = (MatrixTransform)ModifiedImage.RenderTransform;
 
             //calculate initial histogram values
             HistogramTools.CalculateHistograms();
@@ -61,7 +61,7 @@ namespace Biometrics
         private void OpenHistogram(object sender, RoutedEventArgs e)
         {
             //open window where user can see image and it's histograms for r/g/b channels and average channel
-            var histogramwindow = new HistogramWindow((BitmapSource) ModifiedImgSingleton.Source);
+            var histogramwindow = new HistogramWindow((BitmapSource)ModifiedImgSingleton.Source);
             histogramwindow.Show();
         }
 
@@ -234,7 +234,7 @@ namespace Biometrics
                 //using logarithm function to obscure image
                 var licznik = Math.Log(1 + i);
                 var mianownik = Math.Log(1 + max);
-                lut[i] = (int) Math.Round(255.0 * (licznik / mianownik), 0, MidpointRounding.AwayFromZero);
+                lut[i] = (int)Math.Round(255.0 * (licznik / mianownik), 0, MidpointRounding.AwayFromZero);
 
                 //if value extends range [0..255], set margin value
                 if (lut[i] > 255)
@@ -243,7 +243,7 @@ namespace Biometrics
                     lut[i] = 0;
             }
 
-            var bitmap = new WriteableBitmap((BitmapSource) ModifiedImgSingleton.Source);
+            var bitmap = new WriteableBitmap((BitmapSource)ModifiedImgSingleton.Source);
 
             var width = bitmap.PixelWidth;
             var height = bitmap.PixelHeight;
@@ -266,9 +266,9 @@ namespace Biometrics
                 var b = pixels[j];
 
                 //assign new values from lut at r/g/b positions
-                pixels[j + 2] = (byte) lut[r];
-                pixels[j + 1] = (byte) lut[g];
-                pixels[j] = (byte) lut[b];
+                pixels[j + 2] = (byte)lut[r];
+                pixels[j + 1] = (byte)lut[g];
+                pixels[j] = (byte)lut[b];
 
                 j += 4;
             }
@@ -301,7 +301,7 @@ namespace Biometrics
             for (var i = 0; i < 256; i++)
             {
                 //using power function to obscure image
-                lut[i] = (int) Math.Round(255.0 * Math.Pow((double) i / max, 2.0), 0, MidpointRounding.AwayFromZero);
+                lut[i] = (int)Math.Round(255.0 * Math.Pow((double)i / max, 2.0), 0, MidpointRounding.AwayFromZero);
 
                 if (lut[i] > 255)
                     lut[i] = 255;
@@ -309,7 +309,7 @@ namespace Biometrics
                     lut[i] = 0;
             }
 
-            var bitmap = new WriteableBitmap((BitmapSource) ModifiedImgSingleton.Source);
+            var bitmap = new WriteableBitmap((BitmapSource)ModifiedImgSingleton.Source);
 
             var width = bitmap.PixelWidth;
             var height = bitmap.PixelHeight;
@@ -332,9 +332,9 @@ namespace Biometrics
                 var b = pixels[j];
 
                 //assign new values from lut at r/g/b positions
-                pixels[j + 2] = (byte) lut[r];
-                pixels[j + 1] = (byte) lut[g];
-                pixels[j] = (byte) lut[b];
+                pixels[j + 2] = (byte)lut[r];
+                pixels[j + 1] = (byte)lut[g];
+                pixels[j] = (byte)lut[b];
 
                 j += 4;
             }
@@ -355,7 +355,7 @@ namespace Biometrics
 
         private void Binarisation_OwnTreshold(object sender, RoutedEventArgs e)
         {
-            if (Binarization.IsImageColoured((BitmapSource) ModifiedImgSingleton.Source))
+            if (Binarization.IsImageColoured((BitmapSource)ModifiedImgSingleton.Source))
             {
                 MessageBox.Show("Obraz musi być czarno-biały", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -367,21 +367,21 @@ namespace Biometrics
 
         private void Binarisation_AutomaticThesholdOtsu(object sender, RoutedEventArgs e)
         {
-            if (Binarization.IsImageColoured((BitmapSource) ModifiedImgSingleton.Source))
+            if (Binarization.IsImageColoured((BitmapSource)ModifiedImgSingleton.Source))
             {
                 MessageBox.Show("Obraz musi być czarno-biały", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            var threshold = Binarization.GetWariancjaMiędzyklasowa((BitmapSource) ModifiedImgSingleton.Source);
+            var threshold = Binarization.GetWariancjaMiędzyklasowa((BitmapSource)ModifiedImgSingleton.Source);
 
             ModifiedImgSingleton.Source =
-                Binarization.ManualBinarisation((BitmapSource) ModifiedImgSingleton.Source, threshold);
+                Binarization.ManualBinarisation((BitmapSource)ModifiedImgSingleton.Source, threshold);
         }
 
         private void Binarisation_LocalTresholdNiblack(object sender, RoutedEventArgs e)
         {
-            if (Binarization.IsImageColoured((BitmapSource) ModifiedImgSingleton.Source))
+            if (Binarization.IsImageColoured((BitmapSource)ModifiedImgSingleton.Source))
             {
                 MessageBox.Show("Obraz musi być czarno-biały", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -393,7 +393,7 @@ namespace Biometrics
 
         private void TurnImageBlackWhiteOnClick(object sender, RoutedEventArgs e)
         {
-            ModifiedImgSingleton.Source = Binarization.TurnImageBlackWhite((BitmapSource) ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = Binarization.TurnImageBlackWhite((BitmapSource)ModifiedImgSingleton.Source);
             HistogramTools.CalculateHistograms();
         }
 
@@ -478,8 +478,8 @@ namespace Biometrics
             ResetPositionAndZoomOfImage();
             SaveImage.X = int.Parse(ResolutionX.Text);
             SaveImage.Y = int.Parse(ResolutionY.Text);
-            _originalMatrix = (MatrixTransform) OriginalImage.RenderTransform;
-            _modifiedMatrix = (MatrixTransform) ModifiedImage.RenderTransform;
+            _originalMatrix = (MatrixTransform)OriginalImage.RenderTransform;
+            _modifiedMatrix = (MatrixTransform)ModifiedImage.RenderTransform;
 
             HistogramTools.CalculateHistograms();
         }
@@ -530,7 +530,7 @@ namespace Biometrics
         private void MenuSaveImgFile_OnClick(object sender, RoutedEventArgs e)
         {
             var bitmap = ModifiedImgSingleton.Source;
-            SaveImageToFile((BitmapSource) bitmap);
+            SaveImageToFile((BitmapSource)bitmap);
         }
 
         #endregion
@@ -541,8 +541,8 @@ namespace Biometrics
         {
             var point = e.GetPosition(Equals(sender, OriginalImage) ? OriginalImage : ModifiedImage);
 
-            var stOriginal = (MatrixTransform) OriginalImage.RenderTransform;
-            var stCopy = (MatrixTransform) ModifiedImage.RenderTransform;
+            var stOriginal = (MatrixTransform)OriginalImage.RenderTransform;
+            var stCopy = (MatrixTransform)ModifiedImage.RenderTransform;
             var zoom = e.Delta >= 0 ? 1.1 : 1.0 / 1.1;
 
             var matrixOriginal = stOriginal.Matrix;
@@ -580,7 +580,7 @@ namespace Biometrics
             try
             {
                 if (e.ClickCount != 2) return;
-                var image = (Image) sender;
+                var image = (Image)sender;
                 var proportionheight = _originalImgBitmap.PixelHeight / image.ActualHeight;
                 var proportionwidth = _originalImgBitmap.PixelWidth / image.ActualWidth;
                 var point = e.GetPosition(OriginalImage);
@@ -590,7 +590,7 @@ namespace Biometrics
                 pixels = new byte[4];
 
                 var bitmap = new CroppedBitmap(_originalImgBitmap,
-                    new Int32Rect((int) x, (int) y, 1, 1));
+                    new Int32Rect((int)x, (int)y, 1, 1));
 
                 try
                 {
@@ -669,13 +669,13 @@ namespace Biometrics
 
         private void Thining(object sender, RoutedEventArgs e)
         {
-            if (!ImgThining.IsImageBinarizated((BitmapSource)ModifiedImgSingleton.Source))
+            if (!K3M.IsImageBinarizated((BitmapSource)ModifiedImgSingleton.Source))
             {
                 MessageBox.Show("Obraz musi zostać zbinaryzowany!", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-           ModifiedImgSingleton.Source =  ImgThining.ThinImage((BitmapSource) ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = K3M.ThinningWithK3M((BitmapSource)ModifiedImgSingleton.Source);
 
         }
     }

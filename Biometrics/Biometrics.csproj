@@ -60,6 +60,7 @@
     </ApplicationDefinition>
     <Compile Include="Classes\Binarization.cs" />
     <Compile Include="Classes\HistogramTools.cs" />
+    <Compile Include="Classes\K3M.cs" />
     <Compile Include="Classes\KeyStrokeDynamics\DBConnection\Database.cs" />
     <Compile Include="Classes\KeyStrokeDynamics\Model\DbModel.cs" />
     <Compile Include="Classes\KeyStrokeDynamics\Keystroke\Key.cs" />
@@ -69,7 +70,6 @@
     <Compile Include="Classes\KeyStrokeDynamics\Model\KeyStruct.cs" />
     <Compile Include="Classes\Mask.cs" />
     <Compile Include="Classes\MaskTables.cs" />
-    <Compile Include="Classes\ImgThining.cs" />
     <Compile Include="Classes\Minutia.cs" />
     <Compile Include="Views\BinarisationOwnTreshold.xaml.cs">
       <DependentUpon>BinarisationOwnTreshold.xaml</DependentUpon>
