@@ -678,5 +678,10 @@ namespace Biometrics
             ModifiedImgSingleton.Source = K3M.ThinningWithK3M((BitmapSource)ModifiedImgSingleton.Source);
 
         }
+
+        private void MinutiaOnClick(object sender, RoutedEventArgs e)
+        {
+            Minutia.MarkMinuties((BitmapSource)ModifiedImgSingleton.Source);
+        }
     }
 }

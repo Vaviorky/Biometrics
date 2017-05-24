@@ -47,6 +47,7 @@
                 </MenuItem>
 
                 <MenuItem Header="Ścienianie" HorizontalAlignment="Left" Width="150" Click="Thining"/>
+                <MenuItem Header="Minucje" HorizontalAlignment="Left" Width="150" Click="MinutiaOnClick"/>
 
                 <Separator />
                 <MenuItem Header="Filtry" HorizontalAlignment="Left" Width="150">
