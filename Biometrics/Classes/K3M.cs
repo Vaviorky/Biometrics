@@ -274,7 +274,7 @@ namespace Biometrics.Classes
                     }
                 }
 
-                if (A[0].Contains(sum))
+                if (A1Pix.Contains(sum))
                 {
                     blackPixels.RemoveAt(index);
                     --index;

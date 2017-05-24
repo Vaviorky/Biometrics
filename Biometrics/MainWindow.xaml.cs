@@ -681,7 +681,7 @@ namespace Biometrics
 
         private void MinutiaOnClick(object sender, RoutedEventArgs e)
         {
-            Minutia.MarkMinuties((BitmapSource)ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = Minutia.MarkMinuties((BitmapSource)ModifiedImgSingleton.Source);
         }
     }
 }
