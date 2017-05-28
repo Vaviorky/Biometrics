@@ -13,7 +13,8 @@ namespace Biometrics.Classes
     {
         private static int _width, _height, _stride;
         private static byte[] _pixels;
-        private static int[,] intPixels;
+        private static int[,] _intPixels;
+        private static List<int[]> _minutiaCandidates;
         public static BitmapSource MarkMinuties(BitmapSource source)
         {
             WriteableBitmap bitmap = new WriteableBitmap(source);
@@ -26,6 +27,8 @@ namespace Biometrics.Classes
             var arraySize = _stride * _height;
             _pixels = new byte[arraySize];
 
+            _minutiaCandidates = new List<int[]>();
+
             //copy all data about pixels values into 1-dimentional array
             bitmap.CopyPixels(_pixels, _stride, 0);
             int count3, count5;
@@ -37,7 +40,7 @@ namespace Biometrics.Classes
                 for (int y = 0; y < _height; y++)
                 {
 
-                    if (intPixels[x, y] != 1)
+                    if (_intPixels[x, y] != 1)
                     {
                         continue;
                     }
@@ -48,54 +51,63 @@ namespace Biometrics.Classes
                     square5WithCount3 = false;
 
                     //square a = 5
-                    for (int i = -2; i <= 2; i++)
+                    for (int i = -1; i <= 1; i++)
                     {
-                        for (int j = -2; j <= 2; j++)
+                        for (int j = -1; j <= 1; j++)
                         {
                             //check if i,j in border of sqare (a==5)
-                            if (i != -2 && i != 2 && j != -2 && j != 2)
+                            if (i != -1 && i != 1 && j != -1 && j != 1)
                                 continue;
 
                             if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
                                 continue;
 
-                            if (intPixels[x + j, y + i] == 1)
+                            if (_intPixels[x + j, y + i] == 1)
                                 count3++;
 
-                            if (count3 >= 3)
-                                square3WithCount3 = true;
-
                         }
                     }
 
-                    //square a = 9
-                    for (int i = -4; i <= 4; i++)
+                    if (count3 == 3)
                     {
-                        for (int j = -4; j <= 4; j++)
-                        {
-                            //check if i,j in border of sqare (a==5)
-                            if (i != -4 && i != 4 && j != -4 && j != 4)
-                                continue;
-
-                            if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
-                                continue;
-
-                            if (intPixels[x + j, y + i] == 1)
-                                count5++;
-
-                            if (count5 >= 3)
-                                square5WithCount3 = true;
-
-                        }
+                        _intPixels[x, y] = 2;
                     }
 
-                    if (square3WithCount3 && square5WithCount3)
-                    {
-                        intPixels[x, y] = 2;
-                    }
+
+
+                    /* //square a = 9
+                     for (int i = -4; i <= 4; i++)
+                     {
+                         for (int j = -4; j <= 4; j++)
+                         {
+                             //check if i,j in border of sqare (a==5)
+                             if (i != -4 && i != 4 && j != -4 && j != 4)
+                                 continue;
+
+                             if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
+                                 continue;
+
+                             if (_intPixels[x + j, y + i] == 1)
+                                 count5++;
+
+                             if (count5 == 3)
+                                 square5WithCount3 = true;
+
+                         }
+                     }
+
+                     //if both squares are 
+                     if (square3WithCount3 && square5WithCount3)
+                     {
+                         _minutiaCandidates.Add(new[]
+                         {
+                             x,y
+                         });
+                     }*/
 
                 }
             }
+
 
             RevertIntPixelsIntoPixelArray();
 
@@ -107,7 +119,7 @@ namespace Biometrics.Classes
 
         private static void InitIntImage()
         {
-            intPixels = new int[_width, _height];
+            _intPixels = new int[_width, _height];
 
             for (int x = 0; x < _width; x++)
             {
@@ -117,11 +129,11 @@ namespace Biometrics.Classes
 
                     if (_pixels[j + 2] == 255 && _pixels[j + 1] == 255 && _pixels[j] == 255)
                     {
-                        intPixels[x, y] = 0;
+                        _intPixels[x, y] = 0;
                     }
                     else if (_pixels[j + 2] == 0 && _pixels[j + 1] == 0 && _pixels[j] == 0)
                     {
-                        intPixels[x, y] = 1;
+                        _intPixels[x, y] = 1;
                     }
                 }
             }
@@ -135,21 +147,21 @@ namespace Biometrics.Classes
                 {
                     int j = PositionInArray(x, y);
 
-                    if (intPixels[x, y] == 0)
+                    if (_intPixels[x, y] == 0)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 255;
                         _pixels[j] = 255;
                     }
 
-                    if (intPixels[x, y] == 1)
+                    if (_intPixels[x, y] == 1)
                     {
                         _pixels[j + 2] = 0;
                         _pixels[j + 1] = 0;
                         _pixels[j] = 0;
                     }
 
-                    if (intPixels[x, y] == 2)
+                    if (_intPixels[x, y] == 2)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 0;
