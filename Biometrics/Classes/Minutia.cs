@@ -36,7 +36,6 @@ namespace Biometrics.Classes
             InitIntImage();
 
             _tempIntPixels = _intPixels;
-            float cnValue;
 
             for (int x = 0; x < _width; x++)
             {
@@ -54,12 +53,12 @@ namespace Biometrics.Classes
                     bool square5WithCount3 = false;
 
                     //square a = 5
-                    for (int i = -1; i <= 1; i++)
+                    for (int i = -2; i <= 2; i++)
                     {
-                        for (int j = -1; j <= 1; j++)
+                        for (int j = -2; j <= 2; j++)
                         {
                             //check if i,j in border of sqare (a==5)
-                            if (i != -1 && i != 1 && j != -1 && j != 1)
+                            if (i != -2 && i != 2 && j != -2 && j != 2)
                                 continue;
 
                             if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
@@ -74,7 +73,7 @@ namespace Biometrics.Classes
                     if (count3 == 3)
                         square3WithCount3 = true;
                     else
-                        square5WithCount3 = false;
+                        square3WithCount3 = false;
 
                     //square a = 9
                     for (int i = -4; i <= 4; i++)

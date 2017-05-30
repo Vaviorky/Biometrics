@@ -190,12 +190,14 @@
         <Grid Grid.Row="4" Background="#c8c8c8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Name="ResolutionStatusBar" Grid.Column="0" />
-            <Separator Grid.Column="1" />
-            <ProgressBar Minimum="0" Maximum="100" Name="ProgressBarKuhara" Grid.Column="2" />
+            <TextBlock Name="CoordinatesXy" Grid.Column="1" />
+            <Separator Grid.Column="2" />
+            <ProgressBar Minimum="0" Maximum="100" Name="ProgressBarKuhara" Grid.Column="3" />
         </Grid>
     </Grid>
 </Window>

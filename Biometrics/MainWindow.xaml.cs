@@ -19,6 +19,7 @@ namespace Biometrics
     public partial class MainWindow : Window
     {
         private static BitmapSource _originalImgBitmap;
+        private static BitmapSource originalBitmapSource;
 
         public static Image ModifiedImgSingleton;
 
@@ -45,6 +46,8 @@ namespace Biometrics
             SaveImage.Y = int.Parse(ResolutionY.Text);
             _originalMatrix = (MatrixTransform)OriginalImage.RenderTransform;
             _modifiedMatrix = (MatrixTransform)ModifiedImage.RenderTransform;
+
+            originalBitmapSource = (BitmapSource)OriginalImage.Source;
 
             //calculate initial histogram values
             HistogramTools.CalculateHistograms();
@@ -579,14 +582,20 @@ namespace Biometrics
 
             try
             {
-                if (e.ClickCount != 2) return;
+                
                 var image = (Image)sender;
+                
                 var proportionheight = _originalImgBitmap.PixelHeight / image.ActualHeight;
                 var proportionwidth = _originalImgBitmap.PixelWidth / image.ActualWidth;
                 var point = e.GetPosition(OriginalImage);
                 var x = point.X * proportionwidth;
                 var y = point.Y * proportionheight;
+                CoordinatesXy.Text = "X: " + (int)x + " Y: " + (int)y;
 
+                OriginalImage.Source = SquareTesting.MarkSquares(originalBitmapSource, (int)x, (int)y);
+
+                if (e.ClickCount != 2) return;
+                
                 pixels = new byte[4];
 
                 var bitmap = new CroppedBitmap(_originalImgBitmap,
