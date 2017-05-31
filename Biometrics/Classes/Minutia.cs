@@ -13,9 +13,8 @@ namespace Biometrics.Classes
     {
         private static int _width, _height, _stride;
         private static byte[] _pixels;
-        private static int[,] _intPixels, _tempIntPixels;
+        private static int[,] _intPixels, _tempintPixels;
 
-        private static List<int[]> _minutiaCandidates;
         public static BitmapSource MarkMinuties(BitmapSource source)
         {
             WriteableBitmap bitmap = new WriteableBitmap(source);
@@ -28,151 +27,76 @@ namespace Biometrics.Classes
             var arraySize = _stride * _height;
             _pixels = new byte[arraySize];
 
-            _minutiaCandidates = new List<int[]>();
-
             //copy all data about pixels values into 1-dimentional array
             bitmap.CopyPixels(_pixels, _stride, 0);
 
             InitIntImage();
 
-            _tempIntPixels = _intPixels;
+            _tempintPixels = _intPixels;
 
             for (int x = 0; x < _width; x++)
             {
                 for (int y = 0; y < _height; y++)
                 {
-
+                    int countForSquare5 = 0, countForSquare9 = 0;
+                    bool square5 = false, square9 = false;
                     if (_intPixels[x, y] != 1)
                     {
                         continue;
                     }
 
-                    int count3 = 0;
-                    int count5 = 0;
-                    bool square3WithCount3 = false;
-                    bool square5WithCount3 = false;
+                    int[] blacksInSquare5 = GetArrayOfBlacksSquare5(x, y);
+                    int[] blacksInSquare9 = GetArrayOfBlacksSquare9(x, y);
 
-                    //square a = 5
-                    for (int i = -2; i <= 2; i++)
+                    foreach (var pixel in blacksInSquare5)
                     {
-                        for (int j = -2; j <= 2; j++)
+                        if (pixel == 1)
                         {
-                            //check if i,j in border of sqare (a==5)
-                            if (i != -2 && i != 2 && j != -2 && j != 2)
-                                continue;
-
-                            if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
-                                continue;
-
-                            if (_intPixels[x + j, y + i] == 1)
-                                count3++;
-                            
+                            square5 = true;
+                        }
+                        if (pixel == 0 && square5)
+                        {
+                            countForSquare5++;
+                            square5 = false;
                         }
                     }
 
-                    if (count3 == 3)
-                        square3WithCount3 = true;
-                    else
-                        square3WithCount3 = false;
-
-                    //square a = 9
-                    for (int i = -4; i <= 4; i++)
+                    foreach (var pixel in blacksInSquare9)
                     {
-                        for (int j = -4; j <= 4; j++)
+                        if (pixel == 1)
                         {
-                            //check if i,j in border of sqare (a==5)
-                            if (i != -4 && i != 4 && j != -4 && j != 4)
-                                continue;
-
-                            if (x + j < 0 || x + j >= _width || y + i < 0 || y + i >= _height || (i == 0 && j == 0))
-                                continue;
-
-                            if (_intPixels[x + j, y + i] == 1)
-                                count5++;
-
+                            square9 = true;
+                        }
+                        if (pixel == 0 && square9)
+                        {
+                            countForSquare9++;
+                            square9 = false;
                         }
                     }
-
-                    if (count5 == 3)
-                        square5WithCount3 = true;
-                    else
+                   // MarkEndings(x, y);
+                    //if both squares are crossovers exactly 3 times
+                    if (countForSquare5 == 3 && countForSquare9 == 3)
                     {
-                        square5WithCount3 = false;
+                        _tempintPixels[x, y] = 2;
                     }
 
-                    //if both squares are 
-                    if (square3WithCount3 && square5WithCount3)
+                    if (countForSquare5 == 1 && countForSquare9 == 1)
                     {
-                        _minutiaCandidates.Add(new[]
-                        {
-                             x,y
-                         });
+                        _tempintPixels[x, y] = 3;
                     }
+
+
 
                 }
             }
 
-            MarkPotentialMinutiaes();
-
-
             RevertIntPixelsIntoPixelArray();
-
 
             var rect = new Int32Rect(0, 0, _width, _height);
             bitmap.WritePixels(rect, _pixels, _stride, 0);
             return bitmap;
         }
 
-        private static void MarkPotentialMinutiaes()
-        {
-            foreach (var minutiaCandidate in _minutiaCandidates)
-            {
-                var x = minutiaCandidate[0];
-                var y = minutiaCandidate[1];
-
-                Debug.WriteLine(x + " " + y);
-
-                _tempIntPixels[x, y] = 2;
-            }
-        }
-
-        //another method...
-        private static float GetCnValue(int x, int y)
-        {
-            //ignore the boundaries cause why not
-            if (x == 0 || y == 0 || x == _width - 1 || y == _height - 1)
-            {
-                return -1f;
-            }
-
-            int[] P =
-            {
-                _intPixels[x + 1, y],           //P1 = P9
-                _intPixels[x + 1, y - 1],       //P2
-                _intPixels[x, y + 1],           //P3
-                _intPixels[x - 1, y + 1],       //P4
-                _intPixels[x - 1, y],           //P5
-                _intPixels[x - 1, y - 1],       //P6
-                _intPixels[x, y - 1],           //P7
-                _intPixels[x + 1, y - 1]        //P8
-            };
-
-            int cnValue = 0;
-
-            for (int i = 0; i < P.Length - 2; i++)
-            {
-                //P1..P8
-                cnValue += Math.Abs(P[i] - P[i + 1]);
-            }
-
-            //P8..P9
-            cnValue += Math.Abs(P[7] - P[0]);
-
-            cnValue = cnValue / 2;
-
-            return cnValue;
-
-        }
 
         private static void InitIntImage()
         {
@@ -204,30 +128,151 @@ namespace Biometrics.Classes
                 {
                     int j = PositionInArray(x, y);
 
-                    if (_tempIntPixels[x, y] == 0)
+                    if (_tempintPixels[x, y] == 0)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 255;
                         _pixels[j] = 255;
                     }
 
-                    if (_tempIntPixels[x, y] == 1)
+                    if (_tempintPixels[x, y] == 1)
                     {
                         _pixels[j + 2] = 0;
                         _pixels[j + 1] = 0;
                         _pixels[j] = 0;
                     }
 
-                    if (_tempIntPixels[x, y] == 2)
+                    if (_tempintPixels[x, y] == 2)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 0;
                         _pixels[j] = 0;
                     }
 
+                    if (_tempintPixels[x, y] == 3)
+                    {
+                        _pixels[j + 2] = 0;
+                        _pixels[j + 1] = 255;
+                        _pixels[j] = 0;
+                    }
+
                 }
             }
         }
+
+        private static int[] GetArrayOfBlacksSquare3(int x, int y)
+        {
+            int[] blacks = new int[9];
+
+            //if it's stupid but it works, it ain't stupid
+            blacks[0] = _intPixels[x - 1, y - 1];
+            blacks[1] = _intPixels[x, y - 1];
+            blacks[2] = _intPixels[x + 1, y - 1];
+            blacks[3] = _intPixels[x + 1, y];
+            blacks[4] = _intPixels[x + 1, y + 1];
+            blacks[5] = _intPixels[x, y + 1];
+            blacks[6] = _intPixels[x - 1, y + 1];
+            blacks[7] = _intPixels[x - 1, y];
+            blacks[8] = _intPixels[x - 1, y - 1];
+
+            return blacks;
+        }
+
+        private static int[] GetArrayOfBlacksSquare5(int x, int y)
+        {
+            int[] blacks = new int[17];
+
+            //if it's stupid but it works, it ain't stupid
+            blacks[0] = _intPixels[x - 4, y - 4];
+            blacks[1] = _intPixels[x - 1, y - 2];
+            blacks[2] = _intPixels[x, y - 2];
+            blacks[3] = _intPixels[x + 1, y - 2];
+            blacks[4] = _intPixels[x + 2, y - 2];
+            blacks[5] = _intPixels[x + 2, y - 1];
+            blacks[6] = _intPixels[x + 2, y];
+            blacks[7] = _intPixels[x + 2, y + 1];
+            blacks[8] = _intPixels[x + 2, y + 2];
+            blacks[9] = _intPixels[x + 1, y + 2];
+            blacks[10] = _intPixels[x, y + 2];
+            blacks[11] = _intPixels[x - 1, y + 2];
+            blacks[12] = _intPixels[x - 2, y + 2];
+            blacks[13] = _intPixels[x - 2, y + 1];
+            blacks[14] = _intPixels[x - 2, y];
+            blacks[15] = _intPixels[x - 2, y - 1];
+            blacks[16] = _intPixels[x - 4, y - 4];
+
+            return blacks;
+        }
+
+        private static int[] GetArrayOfBlacksSquare9(int x, int y)
+        {
+            int[] blacks = new int[33];
+
+            //if it's stupid but it works, it ain't stupid
+            blacks[0] = _intPixels[x - 4, y - 4];
+            blacks[1] = _intPixels[x - 3, y - 4];
+            blacks[2] = _intPixels[x - 2, y - 4];
+            blacks[3] = _intPixels[x - 1, y - 4];
+            blacks[4] = _intPixels[x, y - 4];
+            blacks[5] = _intPixels[x + 1, y - 4];
+            blacks[6] = _intPixels[x + 2, y - 4];
+            blacks[7] = _intPixels[x + 3, y - 4];
+            blacks[8] = _intPixels[x + 4, y - 4];
+            blacks[9] = _intPixels[x + 4, y - 3];
+            blacks[10] = _intPixels[x + 4, y - 2];
+            blacks[11] = _intPixels[x + 4, y - 1];
+            blacks[12] = _intPixels[x + 4, y];
+            blacks[13] = _intPixels[x + 4, y + 1];
+            blacks[14] = _intPixels[x + 4, y + 2];
+            blacks[15] = _intPixels[x + 4, y + 3];
+            blacks[16] = _intPixels[x + 4, y + 4];
+            blacks[17] = _intPixels[x + 3, y + 4];
+            blacks[18] = _intPixels[x + 2, y + 4];
+            blacks[19] = _intPixels[x + 1, y + 4];
+            blacks[20] = _intPixels[x, y + 4];
+            blacks[21] = _intPixels[x - 1, y + 4];
+            blacks[22] = _intPixels[x - 2, y + 4];
+            blacks[23] = _intPixels[x - 3, y + 4];
+            blacks[24] = _intPixels[x - 4, y + 4];
+            blacks[25] = _intPixels[x - 4, y + 3];
+            blacks[26] = _intPixels[x - 4, y + 2];
+            blacks[27] = _intPixels[x - 4, y + 1];
+            blacks[28] = _intPixels[x - 4, y];
+            blacks[29] = _intPixels[x - 4, y - 1];
+            blacks[30] = _intPixels[x - 4, y - 2];
+            blacks[31] = _intPixels[x - 4, y - 3];
+            blacks[32] = _intPixels[x - 4, y - 4];
+
+            return blacks;
+        }
+
+        private static void MarkEndings(int x, int y)
+        {
+            int counterForEnding = 0;
+            bool square3 = false;
+
+            int[] blacksInSquare3 = GetArrayOfBlacksSquare3(x, y);
+
+            foreach (var pixel in blacksInSquare3)
+            {
+                if (pixel == 1)
+                {
+                    square3 = true;
+                }
+                if (pixel == 0 && square3)
+                {
+                    counterForEnding++;
+                    square3 = false;
+                }
+            }
+            Debug.WriteLine(counterForEnding);
+
+            if (counterForEnding == 1)
+            {
+                _tempintPixels[x, y] = 3;
+            }
+        }
+
 
         private static int PositionInArray(int x, int y)
         {

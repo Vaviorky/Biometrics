@@ -582,9 +582,9 @@ namespace Biometrics
 
             try
             {
-                
+
                 var image = (Image)sender;
-                
+
                 var proportionheight = _originalImgBitmap.PixelHeight / image.ActualHeight;
                 var proportionwidth = _originalImgBitmap.PixelWidth / image.ActualWidth;
                 var point = e.GetPosition(OriginalImage);
@@ -593,9 +593,10 @@ namespace Biometrics
                 CoordinatesXy.Text = "X: " + (int)x + " Y: " + (int)y;
 
                 OriginalImage.Source = SquareTesting.MarkSquares(originalBitmapSource, (int)x, (int)y);
+                ModifiedImage.Source = SquareTesting.CheckForPotentialMinutia(originalBitmapSource, (int)x, (int)y);
 
                 if (e.ClickCount != 2) return;
-                
+
                 pixels = new byte[4];
 
                 var bitmap = new CroppedBitmap(_originalImgBitmap,
