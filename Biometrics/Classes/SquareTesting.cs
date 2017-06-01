@@ -100,12 +100,13 @@ namespace Biometrics.Classes
             InitIntImage();
 
             _tempIntPixels = _intPixels;
-            int[] blacksInSquare5 = GetArrayOfBlacksSquare5(x, y);
-            int[] blacksInSquare9 = GetArrayOfBlacksSquare9(x, y);
+            int[] blacksInSquare5 = MinutiaeHelpers.GetArrayOfBlacksSquare5(x, y, _intPixels);
+            int[] blacksInSquare9 = MinutiaeHelpers.GetArrayOfBlacksSquare9(x, y, _intPixels);
 
 
             foreach (var pixel in blacksInSquare5)
             {
+                Debug.Write(pixel + " " );
                 if (pixel == 1)
                 {
                     square5 = true;
@@ -116,6 +117,7 @@ namespace Biometrics.Classes
                     square5 = false;
                 }
             }
+           
 
             foreach (var pixel in blacksInSquare9)
             {
@@ -129,16 +131,16 @@ namespace Biometrics.Classes
                     square9 = false;
                 }
 
-
             }
 
             MarkEndings(x, y);
 
-         //   Debug.WriteLine("");
-          //  Debug.WriteLine("");
-         //   Debug.WriteLine("");
-         //   Debug.WriteLine(countForSquare5 + " " + countForSquare9);
+            Debug.WriteLine("");
 
+            Debug.WriteLine(countForSquare5 + " " + countForSquare9);
+            Debug.WriteLine("");
+            Debug.WriteLine("");
+            Debug.WriteLine("");
             if (countForSquare5 == 3 && countForSquare9 == 3)
             {
                 _intPixels[x, y] = 2;
@@ -241,99 +243,16 @@ namespace Biometrics.Classes
             }
         }
 
-        private static int[] GetArrayOfBlacksSquare5(int x, int y)
-        {
-            int[] blacks = new int[17];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 4, y - 4];
-            blacks[1] = _intPixels[x - 1, y - 2];
-            blacks[2] = _intPixels[x, y - 2];
-            blacks[3] = _intPixels[x + 1, y - 2];
-            blacks[4] = _intPixels[x + 2, y - 2];
-            blacks[5] = _intPixels[x + 2, y - 1];
-            blacks[6] = _intPixels[x + 2, y];
-            blacks[7] = _intPixels[x + 2, y + 1];
-            blacks[8] = _intPixels[x + 2, y + 2];
-            blacks[9] = _intPixels[x + 1, y + 2];
-            blacks[10] = _intPixels[x, y + 2];
-            blacks[11] = _intPixels[x - 1, y + 2];
-            blacks[12] = _intPixels[x - 2, y + 2];
-            blacks[13] = _intPixels[x - 2, y + 1];
-            blacks[14] = _intPixels[x - 2, y];
-            blacks[15] = _intPixels[x - 2, y - 1];
-            blacks[16] = _intPixels[x - 4, y - 4];
-
-            return blacks;
-        }
-
-        private static int[] GetArrayOfBlacksSquare9(int x, int y)
-        {
-            int[] blacks = new int[33];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 4, y - 4];
-            blacks[1] = _intPixels[x - 3, y - 4];
-            blacks[2] = _intPixels[x - 2, y - 4];
-            blacks[3] = _intPixels[x - 1, y - 4];
-            blacks[4] = _intPixels[x, y - 4];
-            blacks[5] = _intPixels[x + 1, y - 4];
-            blacks[6] = _intPixels[x + 2, y - 4];
-            blacks[7] = _intPixels[x + 3, y - 4];
-            blacks[8] = _intPixels[x + 4, y - 4];
-            blacks[9] = _intPixels[x + 4, y - 3];
-            blacks[10] = _intPixels[x + 4, y - 2];
-            blacks[11] = _intPixels[x + 4, y - 1];
-            blacks[12] = _intPixels[x + 4, y];
-            blacks[13] = _intPixels[x + 4, y + 1];
-            blacks[14] = _intPixels[x + 4, y + 2];
-            blacks[15] = _intPixels[x + 4, y + 3];
-            blacks[16] = _intPixels[x + 4, y + 4];
-            blacks[17] = _intPixels[x + 3, y + 4];
-            blacks[18] = _intPixels[x + 2, y + 4];
-            blacks[19] = _intPixels[x + 1, y + 4];
-            blacks[20] = _intPixels[x, y + 4];
-            blacks[21] = _intPixels[x - 1, y + 4];
-            blacks[22] = _intPixels[x - 2, y + 4];
-            blacks[23] = _intPixels[x - 3, y + 4];
-            blacks[24] = _intPixels[x - 4, y + 4];
-            blacks[25] = _intPixels[x - 4, y + 3];
-            blacks[26] = _intPixels[x - 4, y + 2];
-            blacks[27] = _intPixels[x - 4, y + 1];
-            blacks[28] = _intPixels[x - 4, y];
-            blacks[29] = _intPixels[x - 4, y - 1];
-            blacks[30] = _intPixels[x - 4, y - 2];
-            blacks[31] = _intPixels[x - 4, y - 3];
-            blacks[32] = _intPixels[x - 4, y - 4];
-
-            return blacks;
-        }
-
-        private static int[] GetArrayOfBlacksSquare3(int x, int y)
-        {
-            int[] blacks = new int[9];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 1, y - 1];
-            blacks[1] = _intPixels[x, y - 1];
-            blacks[2] = _intPixels[x + 1, y - 1];
-            blacks[3] = _intPixels[x + 1, y];
-            blacks[4] = _intPixels[x + 1, y + 1];
-            blacks[5] = _intPixels[x, y + 1];
-            blacks[6] = _intPixels[x - 1, y + 1];
-            blacks[7] = _intPixels[x - 1, y];
-            blacks[8] = _intPixels[x - 1, y - 1];
-
-            return blacks;
-        }
         private static void MarkEndings(int x, int y)
         {
             int counterForEnding = 0;
-            bool square3 = false;
-            int[] blacksInSquare3 = GetArrayOfBlacksSquare3(x, y);
+            
+            int[] blacksInSquare3 = MinutiaeHelpers.GetArrayOfBlacksSquare3(x,y,_intPixels);
 
             foreach (var pixel in blacksInSquare3)
             {
+                bool square3 = false;
+
                 if (pixel == 1)
                 {
                     square3 = true;
@@ -341,7 +260,6 @@ namespace Biometrics.Classes
                 if (pixel == 0 && square3)
                 {
                     counterForEnding++;
-                    square3 = false;
                 }
             }
 

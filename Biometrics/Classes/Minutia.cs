@@ -13,7 +13,7 @@ namespace Biometrics.Classes
     {
         private static int _width, _height, _stride;
         private static byte[] _pixels;
-        private static int[,] _intPixels, _tempintPixels;
+        private static int[,] _intPixels, _bifurcationIntPixels, _endingIntPixels;
 
         public static BitmapSource MarkMinuties(BitmapSource source)
         {
@@ -32,7 +32,7 @@ namespace Biometrics.Classes
 
             InitIntImage();
 
-            _tempintPixels = _intPixels;
+            _bifurcationIntPixels = _endingIntPixels = _intPixels;
 
             for (int x = 0; x < _width; x++)
             {
@@ -40,13 +40,14 @@ namespace Biometrics.Classes
                 {
                     int countForSquare5 = 0, countForSquare9 = 0;
                     bool square5 = false, square9 = false;
+
                     if (_intPixels[x, y] != 1)
                     {
                         continue;
                     }
 
-                    int[] blacksInSquare5 = GetArrayOfBlacksSquare5(x, y);
-                    int[] blacksInSquare9 = GetArrayOfBlacksSquare9(x, y);
+                    int[] blacksInSquare5 = MinutiaeHelpers.GetArrayOfBlacksSquare5(x, y, _intPixels);
+                    int[] blacksInSquare9 = MinutiaeHelpers.GetArrayOfBlacksSquare9(x, y, _intPixels);
 
                     foreach (var pixel in blacksInSquare5)
                     {
@@ -73,17 +74,21 @@ namespace Biometrics.Classes
                             square9 = false;
                         }
                     }
-                   // MarkEndings(x, y);
+
+
+
+                    //MarkEndings(x, y);
+
                     //if both squares are crossovers exactly 3 times
                     if (countForSquare5 == 3 && countForSquare9 == 3)
                     {
-                        _tempintPixels[x, y] = 2;
+                        _bifurcationIntPixels[x, y] = 2;
                     }
 
-                    if (countForSquare5 == 1 && countForSquare9 == 1)
+                    /*if (countForSquare5 == 1 && countForSquare9 == 1)
                     {
-                        _tempintPixels[x, y] = 3;
-                    }
+                        _bifurcationIntPixels[x, y] = 3;
+                    }*/
 
 
 
@@ -91,7 +96,6 @@ namespace Biometrics.Classes
             }
 
             RevertIntPixelsIntoPixelArray();
-
             var rect = new Int32Rect(0, 0, _width, _height);
             bitmap.WritePixels(rect, _pixels, _stride, 0);
             return bitmap;
@@ -128,28 +132,28 @@ namespace Biometrics.Classes
                 {
                     int j = PositionInArray(x, y);
 
-                    if (_tempintPixels[x, y] == 0)
+                    if (_bifurcationIntPixels[x, y] == 0 || _endingIntPixels[x, y] == 0)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 255;
                         _pixels[j] = 255;
                     }
 
-                    if (_tempintPixels[x, y] == 1)
+                    if (_bifurcationIntPixels[x, y] == 1 || _endingIntPixels[x, y] == 1)
                     {
                         _pixels[j + 2] = 0;
                         _pixels[j + 1] = 0;
                         _pixels[j] = 0;
                     }
 
-                    if (_tempintPixels[x, y] == 2)
+                    if (_bifurcationIntPixels[x, y] == 2 || _endingIntPixels[x, y] == 2)
                     {
                         _pixels[j + 2] = 255;
                         _pixels[j + 1] = 0;
                         _pixels[j] = 0;
                     }
 
-                    if (_tempintPixels[x, y] == 3)
+                    if (_bifurcationIntPixels[x, y] == 3 || _endingIntPixels[x, y] == 3)
                     {
                         _pixels[j + 2] = 0;
                         _pixels[j + 1] = 255;
@@ -160,98 +164,12 @@ namespace Biometrics.Classes
             }
         }
 
-        private static int[] GetArrayOfBlacksSquare3(int x, int y)
-        {
-            int[] blacks = new int[9];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 1, y - 1];
-            blacks[1] = _intPixels[x, y - 1];
-            blacks[2] = _intPixels[x + 1, y - 1];
-            blacks[3] = _intPixels[x + 1, y];
-            blacks[4] = _intPixels[x + 1, y + 1];
-            blacks[5] = _intPixels[x, y + 1];
-            blacks[6] = _intPixels[x - 1, y + 1];
-            blacks[7] = _intPixels[x - 1, y];
-            blacks[8] = _intPixels[x - 1, y - 1];
-
-            return blacks;
-        }
-
-        private static int[] GetArrayOfBlacksSquare5(int x, int y)
-        {
-            int[] blacks = new int[17];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 4, y - 4];
-            blacks[1] = _intPixels[x - 1, y - 2];
-            blacks[2] = _intPixels[x, y - 2];
-            blacks[3] = _intPixels[x + 1, y - 2];
-            blacks[4] = _intPixels[x + 2, y - 2];
-            blacks[5] = _intPixels[x + 2, y - 1];
-            blacks[6] = _intPixels[x + 2, y];
-            blacks[7] = _intPixels[x + 2, y + 1];
-            blacks[8] = _intPixels[x + 2, y + 2];
-            blacks[9] = _intPixels[x + 1, y + 2];
-            blacks[10] = _intPixels[x, y + 2];
-            blacks[11] = _intPixels[x - 1, y + 2];
-            blacks[12] = _intPixels[x - 2, y + 2];
-            blacks[13] = _intPixels[x - 2, y + 1];
-            blacks[14] = _intPixels[x - 2, y];
-            blacks[15] = _intPixels[x - 2, y - 1];
-            blacks[16] = _intPixels[x - 4, y - 4];
-
-            return blacks;
-        }
-
-        private static int[] GetArrayOfBlacksSquare9(int x, int y)
-        {
-            int[] blacks = new int[33];
-
-            //if it's stupid but it works, it ain't stupid
-            blacks[0] = _intPixels[x - 4, y - 4];
-            blacks[1] = _intPixels[x - 3, y - 4];
-            blacks[2] = _intPixels[x - 2, y - 4];
-            blacks[3] = _intPixels[x - 1, y - 4];
-            blacks[4] = _intPixels[x, y - 4];
-            blacks[5] = _intPixels[x + 1, y - 4];
-            blacks[6] = _intPixels[x + 2, y - 4];
-            blacks[7] = _intPixels[x + 3, y - 4];
-            blacks[8] = _intPixels[x + 4, y - 4];
-            blacks[9] = _intPixels[x + 4, y - 3];
-            blacks[10] = _intPixels[x + 4, y - 2];
-            blacks[11] = _intPixels[x + 4, y - 1];
-            blacks[12] = _intPixels[x + 4, y];
-            blacks[13] = _intPixels[x + 4, y + 1];
-            blacks[14] = _intPixels[x + 4, y + 2];
-            blacks[15] = _intPixels[x + 4, y + 3];
-            blacks[16] = _intPixels[x + 4, y + 4];
-            blacks[17] = _intPixels[x + 3, y + 4];
-            blacks[18] = _intPixels[x + 2, y + 4];
-            blacks[19] = _intPixels[x + 1, y + 4];
-            blacks[20] = _intPixels[x, y + 4];
-            blacks[21] = _intPixels[x - 1, y + 4];
-            blacks[22] = _intPixels[x - 2, y + 4];
-            blacks[23] = _intPixels[x - 3, y + 4];
-            blacks[24] = _intPixels[x - 4, y + 4];
-            blacks[25] = _intPixels[x - 4, y + 3];
-            blacks[26] = _intPixels[x - 4, y + 2];
-            blacks[27] = _intPixels[x - 4, y + 1];
-            blacks[28] = _intPixels[x - 4, y];
-            blacks[29] = _intPixels[x - 4, y - 1];
-            blacks[30] = _intPixels[x - 4, y - 2];
-            blacks[31] = _intPixels[x - 4, y - 3];
-            blacks[32] = _intPixels[x - 4, y - 4];
-
-            return blacks;
-        }
-
         private static void MarkEndings(int x, int y)
         {
             int counterForEnding = 0;
             bool square3 = false;
 
-            int[] blacksInSquare3 = GetArrayOfBlacksSquare3(x, y);
+            int[] blacksInSquare3 = MinutiaeHelpers.GetArrayOfBlacksSquare3(x, y, _intPixels);
 
             foreach (var pixel in blacksInSquare3)
             {
@@ -262,14 +180,14 @@ namespace Biometrics.Classes
                 if (pixel == 0 && square3)
                 {
                     counterForEnding++;
-                    square3 = false;
+                    
                 }
+                square3 = false;
             }
-            Debug.WriteLine(counterForEnding);
 
             if (counterForEnding == 1)
             {
-                _tempintPixels[x, y] = 3;
+                _endingIntPixels[x, y] = 3;
             }
         }
 
