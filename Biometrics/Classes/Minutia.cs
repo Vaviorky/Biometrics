@@ -390,11 +390,11 @@ namespace Biometrics.Classes
             }
 
 
-            for (int x = 0; x < _width; x++)
+            for (int x = 50; x < _width - 50; x++)
             {
-                for (int y = 0; y < _height; y++)
+                for (int y = 50; y < _height - 50; y++)
                 {
-                    if (_intPixels[x, y] == 1 && CountNeighbours(x, y) == 1 )
+                    if (_intPixels[x, y] == 1 && CountNeighbours(x, y) == 1)
                     {
                         _tempIntPixels[x, y] = 3;
                     }
