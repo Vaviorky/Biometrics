@@ -691,6 +691,8 @@ namespace Biometrics
             ModifiedImgSingleton.Source = Minutia.MarkMinuties((BitmapSource)ModifiedImgSingleton.Source);
             ModifiedImgSingleton.Source = Minutia.DeleteRepetatiobns((BitmapSource)ModifiedImgSingleton.Source);
             ModifiedImgSingleton.Source = Minutia.RemoveRedundantMinutiaes((BitmapSource)ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = Minutia.DeleteFalseMinutiaes((BitmapSource)ModifiedImgSingleton.Source, 20);
+            ModifiedImgSingleton.Source = Minutia.MarkEndings((BitmapSource)ModifiedImgSingleton.Source);
         }
     }
 }
