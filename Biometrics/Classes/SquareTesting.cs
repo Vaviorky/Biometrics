@@ -103,10 +103,9 @@ namespace Biometrics.Classes
             int[] blacksInSquare5 = MinutiaeHelpers.GetArrayOfBlacksSquare5(x, y, _intPixels);
             int[] blacksInSquare9 = MinutiaeHelpers.GetArrayOfBlacksSquare9(x, y, _intPixels);
 
-
             foreach (var pixel in blacksInSquare5)
             {
-                Debug.Write(pixel + " " );
+                Debug.Write(pixel + " ");
                 if (pixel == 1)
                 {
                     square5 = true;
@@ -117,7 +116,6 @@ namespace Biometrics.Classes
                     square5 = false;
                 }
             }
-           
 
             foreach (var pixel in blacksInSquare9)
             {
@@ -171,6 +169,10 @@ namespace Biometrics.Classes
                     {
                         _intPixels[x, y] = 1;
                     }
+                    else if (_pixels[j + 2] == 255 && _pixels[j + 1] == 0 && _pixels[j] == 0)
+                    {
+                        _intPixels[x, y] = 2;
+                    }
                 }
             }
         }
@@ -213,30 +215,30 @@ namespace Biometrics.Classes
 
                     if (_tempIntPixels[x, y] == 0)
                     {
-                        _tempPixels[j + 2] = 255;
-                        _tempPixels[j + 1] = 255;
-                        _tempPixels[j] = 255;
+                        _pixels[j + 2] = 255;
+                        _pixels[j + 1] = 255;
+                        _pixels[j] = 255;
                     }
 
                     if (_tempIntPixels[x, y] == 1)
                     {
-                        _tempPixels[j + 2] = 0;
-                        _tempPixels[j + 1] = 0;
-                        _tempPixels[j] = 0;
+                        _pixels[j + 2] = 0;
+                        _pixels[j + 1] = 0;
+                        _pixels[j] = 0;
                     }
 
                     if (_tempIntPixels[x, y] == 2)
                     {
-                        _tempPixels[j + 2] = 255;
-                        _tempPixels[j + 1] = 0;
-                        _tempPixels[j] = 0;
+                        _pixels[j + 2] = 255;
+                        _pixels[j + 1] = 0;
+                        _pixels[j] = 0;
                     }
 
                     if (_tempIntPixels[x, y] == 3)
                     {
-                        _tempPixels[j + 2] = 0;
-                        _tempPixels[j + 1] = 255;
-                        _tempPixels[j] = 0;
+                        _pixels[j + 2] = 0;
+                        _pixels[j + 1] = 255;
+                        _pixels[j] = 0;
                     }
 
                 }
@@ -246,8 +248,8 @@ namespace Biometrics.Classes
         private static void MarkEndings(int x, int y)
         {
             int counterForEnding = 0;
-            
-            int[] blacksInSquare3 = MinutiaeHelpers.GetArrayOfBlacksSquare3(x,y,_intPixels);
+
+            int[] blacksInSquare3 = MinutiaeHelpers.GetArrayOfBlacksSquare3(x, y, _intPixels);
 
             foreach (var pixel in blacksInSquare3)
             {
@@ -264,6 +266,120 @@ namespace Biometrics.Classes
             }
 
             Debug.WriteLine(counterForEnding);
+        }
+
+        public static BitmapSource DeleteRepetations(BitmapSource source, int x, int y)
+        {
+            WriteableBitmap bitmap = new WriteableBitmap(source);
+
+            _width = bitmap.PixelWidth;
+            _height = bitmap.PixelHeight;
+
+            _stride = _width * ((bitmap.Format.BitsPerPixel + 7) / 8);
+
+            var arraySize = _stride * _height;
+            _pixels = new byte[arraySize];
+
+            //copy all data about pixels values into 1-dimentional array
+            bitmap.CopyPixels(_pixels, _stride, 0);
+
+            InitIntImage();
+            _tempIntPixels = new int[_width, _height];
+            for (int i = 0; i < _width; i++)
+            {
+                for (int j = 0; j < _height; j++)
+                {
+                    _tempIntPixels[i, j] = _intPixels[i, j];
+                }
+            }
+
+            List<List<int[]>> minutiaesRepetationsList = new List<List<int[]>>();
+
+            if (_intPixels[x, y] == 2)
+            {
+                List<int[]> minutiaesInSingleArea = new List<int[]>();
+                for (int i = -2; i <= 2; i++)
+                {
+                    for (int j = -2; j <= 2; j++)
+                    {
+                        // if it goes out of image
+                        if (x + i < 0 || x + i >= _width || y + j < 0 || y + j >= _height /*|| (i == 0 && j == 0)*/)
+                            continue;
+
+                        if (_intPixels[x + i, y + j] == 2)
+                        {
+                            int posX = x + i;
+                            int posY = y + j;
+
+                            int[] pixel = new int[2];
+                            pixel[0] = posX;
+                            pixel[1] = posY;
+
+                            minutiaesInSingleArea.Add(pixel);
+                        }
+                    }
+                }
+
+                foreach (var pixel in minutiaesInSingleArea)
+                {
+                    var tempX = pixel[0];
+                    var tempY = pixel[1];
+
+                    int redCount = 0;
+                    if (_intPixels[tempX - 1, tempY] == 2)
+                    {
+                        redCount++;
+                    }
+
+                    if (_intPixels[tempX + 1, tempY] == 2)
+                    {
+                        redCount++;
+                    }
+
+                    if (_intPixels[tempX, tempY - 1] == 2)
+                    {
+                        redCount++;
+                    }
+                    if (_intPixels[tempX, tempY + 1] == 2)
+                    {
+                        redCount++;
+                    }
+
+                    if (redCount < 2)
+                    {
+                        Debug.WriteLine(tempX + " " + tempY + " " + _intPixels[tempX, tempY]);
+                        _tempIntPixels[tempX, tempY] = 1;
+                    }
+
+                    if (redCount == 2)
+                    {
+                        Debug.WriteLine("RED FOREVER");
+                        _tempIntPixels[tempX, tempY] = 2;
+                    }
+
+                }
+
+
+                for (int i = -2; i <= 2; i++)
+                {
+                    for (int j = -2; j <= 2; j++)
+                    {
+                        // if it goes out of image
+                        if (x + i < 0 || x + i >= _width || y + j < 0 || y + j >= _height)
+                            continue;
+
+                        //_intPixels[x + i, y + j] = _tempIntPixels[x + i, y + j];
+                    }
+                }
+
+                //_intPixels[tempX, tempY] = 3;
+
+            }
+
+            RevertIntPixelsIntoPixelArray();
+            var rect = new Int32Rect(0, 0, _width, _height);
+            bitmap.WritePixels(rect, _pixels, _stride, 0);
+            return bitmap;
         }
 
         private static int PositionInArray(int x, int y)

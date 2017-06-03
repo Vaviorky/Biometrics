@@ -582,7 +582,7 @@ namespace Biometrics
 
             try
             {
-
+                if (e.ClickCount != 2) return;
                 var image = (Image)sender;
 
                 var proportionheight = _originalImgBitmap.PixelHeight / image.ActualHeight;
@@ -592,11 +592,9 @@ namespace Biometrics
                 var y = point.Y * proportionheight;
                 CoordinatesXy.Text = "X: " + (int)x + " Y: " + (int)y;
 
-                OriginalImage.Source = SquareTesting.MarkSquares(originalBitmapSource, (int)x, (int)y);
-                ModifiedImage.Source = SquareTesting.CheckForPotentialMinutia(originalBitmapSource, (int)x, (int)y);
-
-                if (e.ClickCount != 2) return;
-
+                //OriginalImage.Source = SquareTesting.MarkSquares(originalBitmapSource, (int)x, (int)y);
+                //ModifiedImage.Source = SquareTesting.CheckForPotentialMinutia(originalBitmapSource, (int)x, (int)y);
+                ModifiedImgSingleton.Source = SquareTesting.DeleteRepetations((BitmapSource)ModifiedImgSingleton.Source, (int)x, (int)y);
                 pixels = new byte[4];
 
                 var bitmap = new CroppedBitmap(_originalImgBitmap,
@@ -611,8 +609,8 @@ namespace Biometrics
                     Debug.WriteLine(exc.StackTrace);
                 }
 
-                var changePixel = new RgbDialog(pixels, point, _originalImgBitmap);
-                changePixel.Show();
+                //var changePixel = new RgbDialog(pixels, point, _originalImgBitmap);
+                //changePixel.Show();
             }
             catch (Exception ee)
             {
@@ -643,7 +641,6 @@ namespace Biometrics
             var modifiedMatrix = ModifiedImage.RenderTransform.Value;
             modifiedMatrix.OffsetX = origin.X + (p.X - start.X);
             modifiedMatrix.OffsetY = origin.Y + (p.Y - start.Y);
-
 
             OriginalImage.RenderTransform = new MatrixTransform(originalMatrix);
             ModifiedImage.RenderTransform = new MatrixTransform(modifiedMatrix);
@@ -692,6 +689,8 @@ namespace Biometrics
         private void MinutiaOnClick(object sender, RoutedEventArgs e)
         {
             ModifiedImgSingleton.Source = Minutia.MarkMinuties((BitmapSource)ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = Minutia.DeleteRepetatiobns((BitmapSource)ModifiedImgSingleton.Source);
+            ModifiedImgSingleton.Source = Minutia.RemoveRedundantMinutiaes((BitmapSource)ModifiedImgSingleton.Source);
         }
     }
 }
